@@ -1,0 +1,1319 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dev Ceylon Invoice Studio</title>
+<meta name="description" content="Create, track and share invoices, quotations and receipts for Dev Ceylon.">
+<meta name="theme-color" content="#1E40AF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#020617" media="(prefers-color-scheme: dark)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="DC Invoices">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231E40AF'/%3E%3Cpath d='M20 16h24v32H20z' fill='%23fff'/%3E%3Cpath d='M26 25h12M26 32h12M26 39h7' stroke='%231E40AF' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<style type="text/tailwindcss">
+  @custom-variant dark (&:where(.dark, .dark *));
+  @theme {
+    --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+    --color-ink: #0F1B3D;
+    --color-brand: #1E40AF;
+    --color-brand-600: #2347C4;
+    --color-brand-50: #EEF2FD;
+    --color-lagoon: #0E7490;
+    --color-amber: #B45309;
+    --color-paper: #F6F8FC;
+    --color-line: #DCE3F0;
+  }
+  @layer components {
+    .field { @apply block w-full min-w-0 min-h-11 rounded-lg border border-line bg-white px-3 py-2.5 text-base lg:min-h-10 lg:text-[15px] text-ink placeholder:text-slate-400 outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500; }
+    .lbl { @apply mb-1.5 block text-[13px] font-semibold text-slate-600 dark:text-slate-400; }
+    .btn, .btn-primary, .btn-ghost, .btn-line, .btn-danger { @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-lg px-3.5 py-2.5 text-sm font-semibold whitespace-nowrap sm:min-h-10 transition select-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:opacity-50 disabled:pointer-events-none; }
+    .btn-primary { @apply bg-brand text-white hover:bg-brand-600 active:scale-[.98]; }
+    .btn-ghost { @apply text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800; }
+    .btn-line { @apply border border-line bg-white text-ink hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800; }
+    .btn-danger { @apply text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/40; }
+    .icon-btn { @apply inline-flex h-10 w-10 shrink-0 items-center sm:h-9 sm:w-9 justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-ink focus-visible:outline-2 focus-visible:outline-brand dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white; }
+    .panel { @apply rounded-2xl border border-line bg-white dark:border-slate-800 dark:bg-slate-900; }
+    .sec-title { @apply text-base font-bold text-ink dark:text-white; }
+    .chip { @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold; }
+    .seg { @apply flex rounded-lg bg-slate-100 p-1 dark:bg-slate-800; }
+    .seg button { @apply min-h-9 flex-1 rounded-md px-3 py-2 text-sm whitespace-nowrap sm:py-1.5 font-semibold text-slate-600 transition dark:text-slate-300; }
+    .fchip { @apply inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-full border border-line bg-white px-4 text-sm font-semibold text-slate-600 transition dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300; }
+    .fchip[aria-pressed="true"] { @apply border-ink bg-ink text-white dark:border-white dark:bg-white dark:text-ink; }
+    .seg button[aria-pressed="true"] { @apply bg-white text-ink shadow-sm dark:bg-slate-950 dark:text-white; }
+  }
+</style>
+<style>
+  :root { color-scheme: light; }
+  html.dark { color-scheme: dark; }
+  html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  body { font-family: "Manrope", ui-sans-serif, system-ui, sans-serif; -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
+  button, a, label, select, input, textarea { touch-action: manipulation; }
+  .grid > * { min-width: 0; }
+  input[type=date]::-webkit-date-and-time-value { text-align: left; }
+  .safe-top { padding-top: env(safe-area-inset-top); }
+  .sheet-pad { padding-bottom: calc(1.25rem + env(safe-area-inset-bottom)); }
+  #edBar { bottom: calc(64px + env(safe-area-inset-bottom)); }
+  @media (min-width: 1024px) { #edBar { bottom: auto; } }
+  #previewStage { cursor: zoom-in; }
+  @media (min-width: 1024px) { #previewStage { cursor: default; } }
+  .num { font-variant-numeric: tabular-nums; }
+  [hidden] { display: none !important; }
+  .view { animation: none; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { scrollbar-width: none; }
+  .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+  input[type=number]::-webkit-inner-spin-button { opacity: .4; }
+  details > summary { list-style: none; cursor: pointer; }
+  details > summary::-webkit-details-marker { display: none; }
+  details[open] .chev { transform: rotate(180deg); }
+  .chev { transition: transform .2s; }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
+
+  /* Toasts and modals */
+  #toasts > div { animation: toastIn .22s ease-out; }
+  @keyframes toastIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  .modal-backdrop { background: rgba(15, 27, 61, .45); backdrop-filter: blur(2px); }
+  .modal-card { animation: modalIn .18s ease-out; }
+  @keyframes modalIn { from { opacity: 0; transform: translateY(12px) scale(.99); } to { opacity: 1; transform: none; } }
+
+  /* Preview stage */
+  #previewStage { position: relative; overflow: hidden; }
+  #previewPaper { position: absolute; top: 0; left: 0; transform-origin: top left; box-shadow: 0 1px 2px rgba(15,27,61,.08), 0 12px 32px -12px rgba(15,27,61,.28); }
+
+  /* ================= Invoice document ================= */
+  .inv { --accent: #1E40AF; --ink: #0F1B3D; --muted: #5B6785; --rule: #E2E8F3; --soft: #F4F7FC;
+    width: 794px; min-height: 1122px; background: #fff; color: var(--ink); font-family: "Manrope", Arial, sans-serif;
+    font-size: 12.5px; line-height: 1.5; position: relative; display: flex; flex-direction: column; box-sizing: border-box; overflow: hidden; }
+  .inv *, .inv *::before, .inv *::after { box-sizing: border-box; }
+  .inv .pad { padding: 0 56px; }
+  .inv .num { font-variant-numeric: tabular-nums; }
+  .inv .muted { color: var(--muted); }
+  .inv .rail { height: 8px; background: var(--accent); }
+  .inv .head { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; padding-top: 40px; padding-bottom: 28px; }
+  .inv .brand img { max-height: var(--logo-h, 52px); max-width: 230px; object-fit: contain; display: block; }
+  .inv .wordmark { font-size: 24px; font-weight: 800; letter-spacing: -.02em; color: var(--accent); }
+  .inv .brand .tag { margin-top: 8px; color: var(--muted); font-size: 11.5px; max-width: 260px; }
+  .inv .title { text-align: right; }
+  .inv .title h1 { margin: 0; font-size: 40px; line-height: 1; font-weight: 800; letter-spacing: -.035em; color: var(--accent); }
+  .inv .title .no { margin-top: 10px; font-size: 14px; font-weight: 700; }
+  .inv .status { display: inline-block; margin-top: 8px; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; background: var(--soft); color: var(--muted); }
+  .inv .status.paid { background: #E3F5EE; color: #0B6B4B; }
+  .inv .status.overdue { background: #FDEBDD; color: #9A3D07; }
+  .inv .status.partial { background: #E0F2F7; color: #0E5E75; }
+  .inv .meta { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 28px; padding-top: 22px; padding-bottom: 26px; border-top: 1px solid var(--rule); }
+  .inv .meta h4 { margin: 0 0 6px; font-size: 11px; font-weight: 700; color: var(--muted); }
+  .inv .meta .strong { font-weight: 700; font-size: 13.5px; }
+  .inv .meta p { margin: 0; white-space: pre-line; }
+  .inv .kv { display: grid; grid-template-columns: auto 1fr; gap: 3px 12px; }
+  .inv .kv dt { color: var(--muted); }
+  .inv .kv dd { margin: 0; text-align: right; font-weight: 600; }
+  .inv .project { margin-bottom: 14px; font-size: 13px; }
+  .inv .project b { font-weight: 700; }
+  .inv table.items { width: 100%; border-collapse: collapse; }
+  .inv table.items thead th { background: var(--accent); color: #fff; font-size: 11px; font-weight: 700; text-align: left; padding: 9px 10px; }
+  .inv table.items thead th:first-child { border-radius: 6px 0 0 6px; }
+  .inv table.items thead th:last-child { border-radius: 0 6px 6px 0; }
+  .inv table.items th.r, .inv table.items td.r { text-align: right; }
+  .inv table.items td { padding: 11px 10px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  .inv table.items tr { page-break-inside: avoid; break-inside: avoid; }
+  .inv table.items .iname { font-weight: 700; }
+  .inv table.items .idesc { color: var(--muted); white-space: pre-line; margin-top: 2px; font-size: 11.5px; }
+  .inv table.items .idx { color: var(--muted); width: 28px; }
+  .inv table.items td.r, .inv table.items th.r { white-space: nowrap; }
+  .inv table.items td:nth-child(2) { word-break: break-word; }
+  .inv .empty-items { padding: 28px 10px; text-align: center; color: var(--muted); border-bottom: 1px solid var(--rule); }
+  .inv .sum { display: grid; grid-template-columns: 1fr 300px; gap: 32px; padding-top: 20px; }
+  .inv .totals { width: 100%; border-collapse: collapse; }
+  .inv .totals td { padding: 5px 0; }
+  .inv .totals td.r { text-align: right; font-weight: 600; }
+  .inv .totals tr.grand td { padding-top: 10px; border-top: 1px solid var(--rule); font-size: 14px; font-weight: 800; }
+  .inv .balance { margin-top: 12px; background: var(--accent); color: #fff; border-radius: 10px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: baseline; }
+  .inv .balance span:first-child { font-weight: 600; font-size: 12px; opacity: .9; }
+  .inv .balance span:last-child { font-weight: 800; font-size: 19px; letter-spacing: -.01em; }
+  .inv .words { background: var(--soft); border-radius: 10px; padding: 12px 14px; font-size: 12px; }
+  .inv .words b { display: block; font-size: 11px; color: var(--muted); font-weight: 700; margin-bottom: 2px; }
+  .inv .paylist { margin-top: 14px; font-size: 11.5px; }
+  .inv .paylist h4 { margin: 0 0 4px; font-size: 11px; color: var(--muted); font-weight: 700; }
+  .inv .paylist div { display: flex; justify-content: space-between; gap: 10px; padding: 3px 0; border-bottom: 1px dashed var(--rule); }
+  .inv .lower { display: grid; grid-template-columns: 1fr auto; gap: 28px; padding-top: 28px; align-items: start; }
+  .inv .box h4 { margin: 0 0 6px; font-size: 11px; font-weight: 700; color: var(--muted); }
+  .inv .box p { margin: 0; white-space: pre-line; }
+  .inv .bank { display: grid; grid-template-columns: auto 1fr; gap: 2px 14px; }
+  .inv .bank dt { color: var(--muted); }
+  .inv .bank dd { margin: 0; font-weight: 600; }
+  .inv .qr { text-align: center; }
+  .inv .qr img { width: 96px; height: 96px; display: block; margin: 0 auto; }
+  .inv .qr small { display: block; margin-top: 4px; color: var(--muted); font-size: 10px; }
+  .inv .notes { padding-top: 22px; display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+  .inv .sign { padding-top: 34px; display: flex; justify-content: flex-end; }
+  .inv .sign > div { width: 220px; text-align: center; }
+  .inv .sign img { max-height: 60px; max-width: 200px; display: block; margin: 0 auto 4px; }
+  .inv .sign .line { border-top: 1px solid var(--ink); padding-top: 6px; font-weight: 700; }
+  .inv .sign small { color: var(--muted); }
+  .inv .grow { flex: 1; min-height: 24px; }
+  .inv .foot { padding-top: 16px; padding-bottom: 26px; border-top: 1px solid var(--rule); display: flex; justify-content: space-between; gap: 16px; font-size: 11px; color: var(--muted); }
+  .inv .foot b { color: var(--ink); }
+  .inv .stamp { position: absolute; top: 300px; right: 70px; transform: rotate(-14deg); border: 4px solid currentColor; border-radius: 10px; padding: 6px 18px; font-size: 34px; font-weight: 800; letter-spacing: .06em; opacity: .16; pointer-events: none; }
+  .inv .stamp.paid { color: #0B6B4B; } .inv .stamp.overdue { color: #B45309; } .inv .stamp.draft { color: #5B6785; } .inv .stamp.cancelled { color: #B91C1C; } .inv .stamp.accepted { color: #0B6B4B; }
+
+  /* Template: classic */
+  .inv.tpl-classic .rail { display: none; }
+  .inv.tpl-classic .head { flex-direction: column; align-items: center; text-align: center; padding-top: 44px; gap: 14px; }
+  .inv.tpl-classic .brand img { margin: 0 auto; }
+  .inv.tpl-classic .brand .tag { margin-left: auto; margin-right: auto; }
+  .inv.tpl-classic .title { text-align: center; }
+  .inv.tpl-classic .title h1 { color: var(--ink); font-size: 30px; letter-spacing: .02em; border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); padding: 8px 28px; display: inline-block; }
+  .inv.tpl-classic table.items thead th { background: transparent; color: var(--ink); border-top: 2px solid var(--ink); border-bottom: 1px solid var(--ink); border-radius: 0 !important; }
+  .inv.tpl-classic table.items td { border-bottom: 1px solid var(--rule); }
+  .inv.tpl-classic .balance { background: transparent; color: var(--ink); border: 2px solid var(--ink); border-radius: 0; }
+  .inv.tpl-classic .words { background: transparent; border: 1px solid var(--rule); border-radius: 0; }
+
+  /* Template: minimal */
+  .inv.tpl-minimal .rail { display: none; }
+  .inv.tpl-minimal .head { padding-top: 56px; }
+  .inv.tpl-minimal .title h1 { color: var(--ink); font-weight: 700; font-size: 34px; }
+  .inv.tpl-minimal .title .no { color: var(--accent); }
+  .inv.tpl-minimal .meta { border-top: 0; }
+  .inv.tpl-minimal table.items thead th { background: transparent; color: var(--muted); border-bottom: 1px solid var(--ink); border-radius: 0 !important; padding-left: 0; }
+  .inv.tpl-minimal table.items td { padding-left: 0; }
+  .inv.tpl-minimal .balance { background: var(--soft); color: var(--ink); }
+  .inv.tpl-minimal .balance span:last-child { color: var(--accent); }
+
+  /* Template: bold — accent side panel header */
+  .inv.tpl-bold .rail { display: none; }
+  .inv.tpl-bold .head { background: var(--accent); color: #fff; margin: 0; padding: 40px 56px 32px; }
+  .inv.tpl-bold .title h1 { color: #fff; }
+  .inv.tpl-bold .brand .tag { color: rgba(255,255,255,.8); }
+  .inv.tpl-bold .wordmark { color: #fff; }
+  .inv.tpl-bold .status { background: rgba(255,255,255,.18); color: #fff; }
+  .inv.tpl-bold .brand img { background: #fff; padding: 8px 10px; border-radius: 10px; }
+  .inv.tpl-bold .meta { border-top: 0; padding-top: 28px; }
+
+  .inv.export { min-height: 1120px; }
+
+  /* Print */
+  #printArea { display: none; }
+  @page { size: A4; margin: 0; }
+  @media print {
+    html, body { background: #fff !important; }
+    body > *:not(#printArea) { display: none !important; }
+    #printArea { display: block !important; }
+    #printArea .inv { width: 210mm; min-height: 296mm; box-shadow: none; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body class="min-h-screen bg-paper text-ink antialiased dark:bg-slate-950 dark:text-slate-100">
+
+<a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[100] focus:rounded-lg focus:bg-white focus:px-3 focus:py-2 focus:text-brand">Skip to content</a>
+
+<!-- ============ Header ============ -->
+<header class="safe-top sticky top-0 z-40 border-b border-line/80 bg-white/90 backdrop-blur dark:border-slate-800 dark:bg-slate-950/85">
+  <div class="mx-auto flex h-16 max-w-[1500px] items-center gap-3 px-4 sm:px-6">
+    <button class="flex min-w-0 items-center gap-3" data-nav="dashboard" aria-label="Go to overview">
+      <span id="hdrLogoWrap" class="flex h-9 items-center"></span>
+      <span class="hidden min-w-0 border-l border-line pl-3 text-left sm:block dark:border-slate-700">
+        <span class="block text-sm font-extrabold leading-tight tracking-tight">Invoice Studio</span>
+        <span class="block truncate text-xs text-slate-500 dark:text-slate-400" id="hdrCompany">Dev Ceylon</span>
+      </span>
+    </button>
+    <nav class="ml-6 hidden items-center gap-1 lg:flex" aria-label="Main">
+      <button class="btn-ghost nav-link" data-nav="dashboard">Overview</button>
+      <button class="btn-ghost nav-link" data-nav="documents">Documents</button>
+      <button class="btn-ghost nav-link" data-nav="editor">Editor</button>
+      <button class="btn-ghost nav-link" data-nav="clients">Clients</button>
+      <button class="btn-ghost nav-link" data-nav="services">Services</button>
+      <button class="btn-ghost nav-link" data-nav="settings">Settings</button>
+    </nav>
+    <div class="ml-auto flex items-center gap-1">
+      <button class="icon-btn" id="themeBtn" aria-label="Change theme" title="Theme"></button>
+      <button class="icon-btn lg:hidden" data-nav="settings" aria-label="Settings" title="Settings" data-icon="settings"></button>
+      <button class="btn-primary ml-1 hidden sm:inline-flex" data-action="new-menu"><span data-icon="plus"></span>New</button>
+    </div>
+  </div>
+</header>
+
+<main id="main" class="mx-auto max-w-[1500px] px-4 pb-28 pt-5 sm:px-6 lg:pb-12">
+
+  <!-- ============ Dashboard ============ -->
+  <section id="view-dashboard" class="view" hidden>
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <h1 class="text-2xl font-extrabold tracking-tight sm:text-3xl" id="greeting">Good day</h1>
+        <p class="mt-1 text-slate-500 dark:text-slate-400" id="dashSub">Here is where your billing stands.</p>
+      </div>
+      <div class="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto">
+        <button class="btn-line" data-action="new" data-type="quotation"><span data-icon="file"></span>New quotation</button>
+        <button class="btn-primary" data-action="new" data-type="invoice"><span data-icon="plus"></span>New invoice</button>
+      </div>
+    </div>
+
+    <div id="dashEmpty" class="panel mt-6 p-8 text-center" hidden>
+      <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-50 text-brand dark:bg-brand/20" data-icon="receipt" data-size="28"></div>
+      <h2 class="mt-4 text-lg font-bold">Create your first invoice</h2>
+      <p class="mx-auto mt-1 max-w-md text-slate-500 dark:text-slate-400">Your company details and service rates are already filled in. Start a document, or load a few sample records to look around first.</p>
+      <div class="mt-5 flex flex-wrap justify-center gap-2">
+        <button class="btn-primary" data-action="new" data-type="invoice">Create invoice</button>
+        <button class="btn-line" data-action="load-sample">Load sample data</button>
+      </div>
+    </div>
+
+    <div id="dashBody">
+      <div class="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4" id="statCards"></div>
+      <div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <div class="panel p-4 sm:p-5 lg:col-span-2">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <h2 class="sec-title">Billed and collected</h2>
+            <div class="flex items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
+              <span class="flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-sm bg-brand"></span>Billed</span>
+              <span class="flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-sm bg-lagoon"></span>Collected</span>
+            </div>
+          </div>
+          <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400" id="chartNote">Last 6 months</p>
+          <div id="chart" class="mt-4"></div>
+        </div>
+        <div class="panel p-5">
+          <h2 class="sec-title">Needs attention</h2>
+          <div id="attention" class="mt-3 space-y-2"></div>
+        </div>
+      </div>
+      <div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <div class="panel p-5 lg:col-span-2">
+          <div class="flex items-center justify-between">
+            <h2 class="sec-title">Recent documents</h2>
+            <button class="btn-ghost -mr-2 text-brand dark:text-blue-400" data-nav="documents">View all</button>
+          </div>
+          <div id="recentDocs" class="mt-2"></div>
+        </div>
+        <div class="panel p-5">
+          <h2 class="sec-title">Top clients</h2>
+          <div id="topClients" class="mt-3 space-y-3"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ Editor ============ -->
+  <section id="view-editor" class="view pb-24 lg:pb-0" hidden>
+    <div class="mb-4 flex flex-wrap items-center gap-3">
+      <div class="min-w-0 flex-1">
+        <div class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+          <button class="-my-2 py-2 hover:text-brand" data-nav="documents">Documents</button><span>/</span><span id="edCrumb">New</span>
+          <span id="dirtyDot" class="chip bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300" hidden>Unsaved</span>
+        </div>
+        <h1 class="truncate text-xl font-extrabold tracking-tight sm:text-2xl" id="edTitle">New invoice</h1>
+      </div>
+    </div>
+    <div class="sticky top-16 z-20 -mx-4 mb-4 border-b border-line/70 bg-paper/95 px-4 py-2 backdrop-blur sm:-mx-6 sm:px-6 lg:hidden dark:border-slate-800 dark:bg-slate-950/95" style="top: calc(4rem + env(safe-area-inset-top))">
+      <div class="seg w-full" role="group" aria-label="Editor or preview">
+        <button aria-pressed="true" data-pane="form">Edit</button>
+        <button aria-pressed="false" data-pane="preview">Preview</button>
+      </div>
+    </div>
+
+    <div class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] xl:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
+      <!-- Form column -->
+      <div id="paneForm" class="space-y-4">
+
+        <div class="panel p-4 sm:p-5">
+          <div class="seg" role="group" aria-label="Document type" id="typeSeg">
+            <button data-settype="invoice" aria-pressed="true">Invoice</button>
+            <button data-settype="quotation" aria-pressed="false">Quotation</button>
+            <button data-settype="receipt" aria-pressed="false">Receipt</button>
+          </div>
+          <div class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+            <div class="col-span-2">
+              <label class="lbl" for="f-number">Number</label>
+              <div class="relative">
+                <input id="f-number" class="field pr-10 font-semibold" data-f="number" autocomplete="off">
+                <button class="icon-btn absolute right-0.5 top-1/2 -translate-y-1/2" data-action="regen-number" title="Use next number" aria-label="Use next number" data-icon="refresh" data-size="16"></button>
+              </div>
+            </div>
+            <div>
+              <label class="lbl" for="f-status">Status</label>
+              <select id="f-status" class="field" data-f="status"></select>
+            </div>
+            <div>
+              <label class="lbl" for="f-currency">Currency</label>
+              <select id="f-currency" class="field" data-f="currency"></select>
+            </div>
+            <div>
+              <label class="lbl" for="f-issue" id="lbl-issue">Issue date</label>
+              <input id="f-issue" type="date" class="field" data-f="issueDate">
+            </div>
+            <div id="wrap-terms">
+              <label class="lbl" for="f-terms">Payment terms</label>
+              <select id="f-terms" class="field" data-f="terms"></select>
+            </div>
+            <div id="wrap-due">
+              <label class="lbl" for="f-due" id="lbl-due">Due date</label>
+              <input id="f-due" type="date" class="field" data-f="dueDate">
+            </div>
+            <div class="col-span-2 sm:col-span-1">
+              <label class="lbl" for="f-ref">PO / reference</label>
+              <input id="f-ref" class="field" data-f="reference" placeholder="Optional">
+            </div>
+            <div class="col-span-2 sm:col-span-3">
+              <label class="lbl" for="f-project">Project</label>
+              <input id="f-project" class="field" data-f="project" placeholder="e.g. Clinic booking app, phase 1">
+            </div>
+          </div>
+        </div>
+
+        <div class="panel p-4 sm:p-5">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <h2 class="sec-title">Bill to</h2>
+            <div class="flex gap-1">
+              <button class="btn-ghost px-2.5 py-1.5 text-[13px]" data-action="pick-client"><span data-icon="users" data-size="16"></span>Choose client</button>
+              <button class="btn-ghost px-2.5 py-1.5 text-[13px]" data-action="save-client"><span data-icon="save" data-size="16"></span>Save client</button>
+            </div>
+          </div>
+          <div class="mt-3 grid gap-3 sm:grid-cols-2">
+            <div><label class="lbl" for="c-name">Contact name</label><input id="c-name" class="field" data-f="client.name" autocomplete="off"></div>
+            <div><label class="lbl" for="c-company">Company</label><input id="c-company" class="field" data-f="client.company" autocomplete="off"></div>
+            <div><label class="lbl" for="c-email">Email</label><input id="c-email" type="email" class="field" data-f="client.email" autocomplete="off" inputmode="email"></div>
+            <div><label class="lbl" for="c-phone">Phone</label><input id="c-phone" type="tel" class="field" data-f="client.phone" autocomplete="off" inputmode="tel"></div>
+            <div class="sm:col-span-2"><label class="lbl" for="c-address">Address</label><textarea id="c-address" rows="2" class="field" data-f="client.address"></textarea></div>
+            <div><label class="lbl" for="c-tax">Client VAT / TIN</label><input id="c-tax" class="field" data-f="client.taxId" placeholder="Optional"></div>
+          </div>
+        </div>
+
+        <div class="panel p-4 sm:p-5">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <h2 class="sec-title">Line items <span class="ml-1 text-sm font-semibold text-slate-400" id="itemCount"></span></h2>
+            <button class="btn-ghost px-2.5 py-1.5 text-[13px]" data-action="open-catalog"><span data-icon="box" data-size="16"></span>Add from services</button>
+          </div>
+          <div id="itemsList" class="mt-3 space-y-3"></div>
+          <button class="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-line py-3 text-sm font-semibold text-slate-500 transition hover:border-brand hover:text-brand dark:border-slate-700 dark:text-slate-400" data-action="add-item"><span data-icon="plus" data-size="16"></span>Add line item</button>
+          <datalist id="serviceNames"></datalist>
+        </div>
+
+        <div class="panel p-4 sm:p-5">
+          <h2 class="sec-title">Discount, tax and charges</h2>
+          <div class="mt-3 grid grid-cols-2 gap-3 md:grid-cols-4">
+            <div>
+              <label class="lbl" for="f-dtype">Discount type</label>
+              <select id="f-dtype" class="field" data-f="discountType"><option value="percent">Percent (%)</option><option value="fixed">Fixed amount</option></select>
+            </div>
+            <div>
+              <label class="lbl" for="f-dval">Discount</label>
+              <input id="f-dval" type="number" min="0" step="any" class="field num" data-f="discountValue" inputmode="decimal">
+            </div>
+            <div>
+              <label class="lbl" for="f-oth-l">Other charge</label>
+              <input id="f-oth-l" class="field" data-f="otherLabel" placeholder="e.g. Hosting setup">
+            </div>
+            <div>
+              <label class="lbl" for="f-oth">Amount</label>
+              <input id="f-oth" type="number" step="any" class="field num" data-f="otherAmount" inputmode="decimal">
+            </div>
+          </div>
+          <div class="mt-4 rounded-xl bg-slate-50 p-3 dark:bg-slate-800/50">
+            <label class="flex items-center gap-3 text-sm font-semibold">
+              <input type="checkbox" class="h-4 w-4 accent-brand" data-f="taxEnabled"> Apply tax to taxable items
+            </label>
+            <div class="mt-3 grid grid-cols-2 gap-3" id="taxFields">
+              <div><label class="lbl" for="f-taxn">Tax name</label><input id="f-taxn" class="field" data-f="taxName"></div>
+              <div><label class="lbl" for="f-taxr">Rate (%)</label><input id="f-taxr" type="number" min="0" step="any" class="field num" data-f="taxRate" inputmode="decimal"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel p-4 sm:p-5" id="paymentsPanel">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <h2 class="sec-title" id="payTitle">Payments received</h2>
+            <button class="btn-ghost px-2.5 py-1.5 text-[13px]" data-action="add-payment"><span data-icon="wallet" data-size="16"></span>Record payment</button>
+          </div>
+          <p class="mt-1 text-sm text-slate-500 dark:text-slate-400" id="payHint">Advances and part payments reduce the balance due.</p>
+          <div id="paymentsList" class="mt-3 space-y-2"></div>
+        </div>
+
+        <details class="panel group p-4 sm:p-5" open>
+          <summary class="flex items-center justify-between"><h2 class="sec-title">Notes and terms</h2><span class="chev text-slate-400" data-icon="down"></span></summary>
+          <div class="mt-3 space-y-3">
+            <div><label class="lbl" for="f-notes">Note to client</label><textarea id="f-notes" rows="2" class="field" data-f="notes"></textarea></div>
+            <div><label class="lbl" for="f-tt">Terms and conditions</label><textarea id="f-tt" rows="4" class="field" data-f="termsText"></textarea></div>
+          </div>
+        </details>
+
+        <details class="panel p-4 sm:p-5">
+          <summary class="flex items-center justify-between"><h2 class="sec-title">Layout and display</h2><span class="chev text-slate-400" data-icon="down"></span></summary>
+          <div class="mt-3 grid grid-cols-2 gap-3">
+            <div>
+              <label class="lbl" for="f-tpl">Template</label>
+              <select id="f-tpl" class="field" data-f="template">
+                <option value="modern">Modern</option><option value="bold">Bold header</option><option value="classic">Classic</option><option value="minimal">Minimal</option>
+              </select>
+            </div>
+            <div>
+              <label class="lbl" for="f-accent">Accent colour</label>
+              <div class="flex gap-2">
+                <input id="f-accent" type="color" class="h-[42px] w-12 shrink-0 cursor-pointer rounded-lg border border-line bg-white p-1 dark:border-slate-700 dark:bg-slate-900" data-f="accent">
+                <div class="flex flex-wrap items-center gap-1.5" id="swatches"></div>
+              </div>
+            </div>
+          </div>
+          <div class="mt-4 grid gap-2 sm:grid-cols-2" id="optToggles"></div>
+        </details>
+      </div>
+
+      <!-- Preview column -->
+      <div id="panePreview" class="hidden lg:block">
+        <div class="lg:sticky lg:top-20">
+          <div class="panel mb-3 p-3 sm:p-4">
+            <div class="grid grid-cols-2 gap-2 text-center sm:grid-cols-5" id="liveTotals"></div>
+          </div>
+          <div class="relative rounded-2xl bg-slate-200/70 p-3 sm:p-5 dark:bg-slate-800/60">
+            <div id="previewStage" data-action="zoom-preview" role="button" tabindex="0" aria-label="Open full-size preview"><div id="previewPaper"></div></div>
+            <button class="btn absolute right-5 top-5 min-h-10 bg-ink/85 px-3 text-white shadow-lg backdrop-blur hover:bg-ink sm:right-7 sm:top-7" data-action="zoom-preview"><span data-icon="eye" data-size="16"></span><span class="hidden sm:inline">Full size</span><span class="sm:hidden">Zoom</span></button>
+          </div>
+          <p class="mt-2 text-center text-xs text-slate-500 dark:text-slate-400"><span class="lg:hidden">Tap the page to zoom. </span>Preview updates as you type. The PDF is A4.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Editor action bar -->
+    <div id="edBar" class="fixed inset-x-0 z-30 border-t border-line bg-white/95 shadow-[0_-8px_24px_-16px_rgba(15,27,61,.35)] backdrop-blur lg:static lg:mt-5 lg:rounded-2xl lg:border lg:shadow-none dark:border-slate-800 dark:bg-slate-900/95">
+      <div class="mx-auto flex max-w-[1500px] items-center gap-1.5 px-3 py-2 sm:gap-2 sm:px-4 sm:py-2.5">
+        <div class="mr-auto min-w-0 pr-1">
+          <div class="truncate text-[11px] font-semibold text-slate-500 sm:text-xs dark:text-slate-400" id="barLabel">Balance due</div>
+          <div class="num truncate text-[15px] font-extrabold sm:text-lg" id="barTotal">0.00</div>
+        </div>
+        <button class="btn-primary shrink-0 px-3 sm:px-3.5" data-action="save" aria-label="Save"><span data-icon="save" data-size="18"></span><span class="hidden min-[360px]:inline">Save</span></button>
+        <button class="btn-line shrink-0 px-2.5 sm:px-3.5" data-action="pdf" aria-label="Download PDF" title="Download PDF"><span data-icon="download" data-size="18"></span><span class="hidden sm:inline">PDF</span></button>
+        <button class="btn-line hidden shrink-0 md:inline-flex" data-action="print" title="Print"><span data-icon="printer" data-size="16"></span>Print</button>
+        <button class="btn-line hidden shrink-0 px-2.5 min-[400px]:inline-flex sm:px-3.5" data-action="share" aria-label="Share" title="Share"><span data-icon="share" data-size="18"></span><span class="hidden sm:inline">Share</span></button>
+        <button class="btn-line shrink-0 px-2.5 sm:px-3.5" data-action="more-doc" aria-label="More actions" title="More actions"><span data-icon="more" data-size="18"></span><span class="hidden xl:inline">More</span></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ Documents ============ -->
+  <section id="view-documents" class="view" hidden>
+    <div class="flex flex-wrap items-end justify-between gap-3">
+      <div>
+        <h1 class="text-2xl font-extrabold tracking-tight">Documents</h1>
+        <p class="mt-1 text-slate-500 dark:text-slate-400" id="docsSub"></p>
+      </div>
+      <div class="flex gap-2">
+        <button class="btn-line" data-action="export-csv"><span data-icon="download" data-size="16"></span>CSV</button>
+        <button class="btn-primary hidden sm:inline-flex" data-action="new-menu"><span data-icon="plus" data-size="16"></span>New</button>
+      </div>
+    </div>
+    <div class="mt-4 space-y-3">
+      <div class="flex flex-col gap-2 md:flex-row">
+        <div class="relative flex-1">
+          <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" data-icon="search" data-size="18"></span>
+          <input id="docSearch" class="field pl-10" placeholder="Search number, client, project" type="search" aria-label="Search documents" enterkeyhint="search">
+        </div>
+        <div class="grid grid-cols-2 gap-2 md:flex">
+          <select id="docStatus" class="field md:w-40" aria-label="Status"><option value="">Any status</option></select>
+          <select id="docSort" class="field md:w-44" aria-label="Sort"><option value="date-desc">Newest first</option><option value="date-asc">Oldest first</option><option value="amt-desc">Highest amount</option><option value="due-asc">Due soonest</option><option value="num-desc">Number</option></select>
+        </div>
+      </div>
+      <div class="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:px-0" role="group" aria-label="Document type" id="docTypeChips">
+        <button class="fchip" data-doctype="" aria-pressed="true">All</button>
+        <button class="fchip" data-doctype="invoice" aria-pressed="false">Invoices</button>
+        <button class="fchip" data-doctype="quotation" aria-pressed="false">Quotations</button>
+        <button class="fchip" data-doctype="receipt" aria-pressed="false">Receipts</button>
+      </div>
+    </div>
+    <div id="docList" class="mt-3 space-y-2"></div>
+  </section>
+
+  <!-- ============ Clients ============ -->
+  <section id="view-clients" class="view" hidden>
+    <div class="flex flex-wrap items-end justify-between gap-3">
+      <div>
+        <h1 class="text-2xl font-extrabold tracking-tight">Clients</h1>
+        <p class="mt-1 text-slate-500 dark:text-slate-400">Saved clients fill the Bill to section in one tap.</p>
+      </div>
+      <button class="btn-primary w-full sm:w-auto" data-action="client-form"><span data-icon="plus" data-size="16"></span>Add client</button>
+    </div>
+    <div class="relative mt-4">
+      <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" data-icon="search" data-size="18"></span>
+      <input id="clientSearch" class="field pl-10" placeholder="Search clients" type="search" aria-label="Search clients">
+    </div>
+    <div id="clientList" class="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-3"></div>
+  </section>
+
+  <!-- ============ Services ============ -->
+  <section id="view-services" class="view" hidden>
+    <div class="flex flex-wrap items-end justify-between gap-3">
+      <div>
+        <h1 class="text-2xl font-extrabold tracking-tight">Services and rates</h1>
+        <p class="mt-1 text-slate-500 dark:text-slate-400">Your price list. Add any of these to a document with its rate and description.</p>
+      </div>
+      <button class="btn-primary w-full sm:w-auto" data-action="service-form"><span data-icon="plus" data-size="16"></span>Add service</button>
+    </div>
+    <div class="mt-4 flex flex-col gap-2 sm:flex-row">
+      <div class="relative flex-1">
+        <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" data-icon="search" data-size="18"></span>
+        <input id="serviceSearch" class="field pl-10" placeholder="Search services" type="search" aria-label="Search services">
+      </div>
+      <select id="serviceCat" class="field sm:w-56" aria-label="Category"></select>
+    </div>
+    <div id="serviceList" class="mt-3 space-y-5"></div>
+  </section>
+
+  <!-- ============ Settings ============ -->
+  <section id="view-settings" class="view" hidden>
+    <h1 class="text-2xl font-extrabold tracking-tight">Settings</h1>
+    <p class="mt-1 text-slate-500 dark:text-slate-400">These details appear on every new document. Changes save automatically.</p>
+    <div class="mt-5 grid gap-4 xl:grid-cols-2">
+      <div class="panel p-4 sm:p-5">
+        <h2 class="sec-title">Company</h2>
+        <div class="mt-3 grid gap-3 sm:grid-cols-2">
+          <div><label class="lbl" for="s-name">Company name</label><input id="s-name" class="field" data-s="company.name"></div>
+          <div><label class="lbl" for="s-web">Website</label><input id="s-web" class="field" data-s="company.website"></div>
+          <div class="sm:col-span-2"><label class="lbl" for="s-tag">Tagline</label><input id="s-tag" class="field" data-s="company.tagline"></div>
+          <div class="sm:col-span-2"><label class="lbl" for="s-addr">Address</label><textarea id="s-addr" rows="2" class="field" data-s="company.address"></textarea></div>
+          <div><label class="lbl" for="s-phone">Phone</label><input id="s-phone" class="field" data-s="company.phone" type="tel"></div>
+          <div><label class="lbl" for="s-email">Email</label><input id="s-email" class="field" data-s="company.email" type="email" placeholder="billing@yourdomain.com"></div>
+          <div><label class="lbl" for="s-reg">Business reg. no.</label><input id="s-reg" class="field" data-s="company.regNo" placeholder="Optional"></div>
+          <div><label class="lbl" for="s-tin">VAT / TIN</label><input id="s-tin" class="field" data-s="company.taxId" placeholder="Optional"></div>
+        </div>
+      </div>
+
+      <div class="panel p-4 sm:p-5">
+        <h2 class="sec-title">Logo and signature</h2>
+        <div class="mt-3 flex flex-wrap items-center gap-4">
+          <div class="flex h-20 w-full items-center justify-center rounded-xl border border-line bg-white p-2 sm:w-48 dark:border-slate-700" id="logoPreview"></div>
+          <div class="flex flex-wrap gap-2">
+            <label class="btn-line cursor-pointer"><span data-icon="upload" data-size="16"></span>Upload logo<input type="file" accept="image/*" class="sr-only" id="logoFile"></label>
+            <button class="btn-ghost" data-action="logo-default">Use website logo</button>
+          </div>
+        </div>
+        <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">Uploading the logo file guarantees it appears in downloaded PDFs. PNG or SVG with a transparent background works best.</p>
+        <div class="mt-3 max-w-xs"><label class="lbl" for="s-logoh">Logo height on documents (px)</label><input id="s-logoh" type="range" min="28" max="90" class="w-full accent-brand" data-s="logoHeight"></div>
+        <hr class="my-4 border-line dark:border-slate-800">
+        <div class="grid gap-3 sm:grid-cols-2">
+          <div><label class="lbl" for="s-sname">Signatory name</label><input id="s-sname" class="field" data-s="signatory.name"></div>
+          <div><label class="lbl" for="s-stitle">Signatory title</label><input id="s-stitle" class="field" data-s="signatory.title"></div>
+        </div>
+        <div class="mt-3 flex flex-wrap items-center gap-3">
+          <div class="flex h-16 w-full items-center justify-center rounded-xl border border-dashed border-line bg-white p-2 sm:w-48 dark:border-slate-700" id="sigPreview"></div>
+          <button class="btn-line" data-action="draw-signature"><span data-icon="pen" data-size="16"></span>Draw signature</button>
+          <label class="btn-ghost cursor-pointer">Upload<input type="file" accept="image/*" class="sr-only" id="sigFile"></label>
+          <button class="btn-danger" data-action="clear-signature">Remove</button>
+        </div>
+      </div>
+
+      <div class="panel p-4 sm:p-5">
+        <h2 class="sec-title">Bank details for payment</h2>
+        <div class="mt-3 grid gap-3 sm:grid-cols-2">
+          <div><label class="lbl" for="b-acn">Account name</label><input id="b-acn" class="field" data-s="bank.accountName"></div>
+          <div><label class="lbl" for="b-acc">Account number</label><input id="b-acc" class="field num" data-s="bank.accountNo" inputmode="numeric"></div>
+          <div><label class="lbl" for="b-bank">Bank</label><input id="b-bank" class="field" data-s="bank.bankName" placeholder="e.g. Commercial Bank"></div>
+          <div><label class="lbl" for="b-br">Branch</label><input id="b-br" class="field" data-s="bank.branch"></div>
+          <div><label class="lbl" for="b-sw">SWIFT / BIC</label><input id="b-sw" class="field" data-s="bank.swift" placeholder="For overseas clients"></div>
+          <div><label class="lbl" for="b-oth">Other payment info</label><input id="b-oth" class="field" data-s="bank.other" placeholder="e.g. PayPal, Payoneer"></div>
+        </div>
+        <hr class="my-4 border-line dark:border-slate-800">
+        <div class="grid gap-3 sm:grid-cols-2">
+          <div>
+            <label class="lbl" for="q-mode">QR code on documents</label>
+            <select id="q-mode" class="field" data-s="qr.mode"><option value="summary">Document summary</option><option value="url">Payment or website link</option></select>
+          </div>
+          <div><label class="lbl" for="q-url">Link for QR</label><input id="q-url" class="field" data-s="qr.url" type="url" placeholder="https://"></div>
+        </div>
+      </div>
+
+      <div class="panel p-4 sm:p-5">
+        <h2 class="sec-title">Defaults for new documents</h2>
+        <div class="mt-3 grid grid-cols-1 gap-3 min-[400px]:grid-cols-2">
+          <div><label class="lbl" for="d-cur">Currency</label><select id="d-cur" class="field" data-s="currency"></select></div>
+          <div><label class="lbl" for="d-terms">Payment terms</label><select id="d-terms" class="field" data-s="terms"></select></div>
+          <div><label class="lbl" for="d-taxn">Tax name</label><input id="d-taxn" class="field" data-s="taxName"></div>
+          <div><label class="lbl" for="d-taxr">Tax rate (%)</label><input id="d-taxr" type="number" step="any" class="field num" data-s="taxRate"></div>
+          <div class="min-[400px]:col-span-2"><label class="flex items-center gap-3 text-sm font-semibold"><input type="checkbox" class="h-4 w-4 accent-brand" data-s="taxEnabled">Apply tax by default</label></div>
+          <div><label class="lbl" for="d-valid">Quotation valid for (days)</label><input id="d-valid" type="number" min="1" class="field num" data-s="quoteValidity"></div>
+          <div><label class="lbl" for="d-tpl">Template</label><select id="d-tpl" class="field" data-s="template"><option value="modern">Modern</option><option value="bold">Bold header</option><option value="classic">Classic</option><option value="minimal">Minimal</option></select></div>
+          <div class="min-[400px]:col-span-2"><label class="lbl" for="d-notes">Note to client</label><textarea id="d-notes" rows="2" class="field" data-s="defaultNotes"></textarea></div>
+          <div class="min-[400px]:col-span-2"><label class="lbl" for="d-terms-i">Invoice terms</label><textarea id="d-terms-i" rows="4" class="field" data-s="invoiceTerms"></textarea></div>
+          <div class="min-[400px]:col-span-2"><label class="lbl" for="d-terms-q">Quotation terms</label><textarea id="d-terms-q" rows="4" class="field" data-s="quoteTerms"></textarea></div>
+        </div>
+      </div>
+
+      <div class="panel p-4 sm:p-5">
+        <h2 class="sec-title">Numbering</h2>
+        <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Numbers follow PREFIX-YEAR-0001 and restart each year.</p>
+        <div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <div><label class="lbl" for="n-inv">Invoice prefix</label><input id="n-inv" class="field" data-s="prefixes.invoice"></div>
+          <div><label class="lbl" for="n-quo">Quotation prefix</label><input id="n-quo" class="field" data-s="prefixes.quotation"></div>
+          <div><label class="lbl" for="n-rct">Receipt prefix</label><input id="n-rct" class="field" data-s="prefixes.receipt"></div>
+        </div>
+        <p class="mt-3 text-sm" id="nextNumbers"></p>
+      </div>
+
+      <div class="panel p-4 sm:p-5">
+        <h2 class="sec-title">Your data</h2>
+        <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Everything is stored in this browser only. Export a backup regularly, and import it to move to another device.</p>
+        <div class="mt-3 flex flex-wrap gap-2">
+          <button class="btn-line" data-action="export-json"><span data-icon="download" data-size="16"></span>Export backup</button>
+          <label class="btn-line cursor-pointer"><span data-icon="upload" data-size="16"></span>Import backup<input type="file" accept="application/json,.json" class="sr-only" id="importFile"></label>
+          <button class="btn-line" data-action="export-csv">Export documents CSV</button>
+          <button class="btn-danger" data-action="reset-all"><span data-icon="trash" data-size="16"></span>Erase all data</button>
+        </div>
+        <p class="mt-3 text-xs text-slate-500 dark:text-slate-400" id="storageInfo"></p>
+        <div class="hidden lg:block">
+        <hr class="my-4 border-line dark:border-slate-800">
+        <h3 class="text-sm font-bold">Keyboard shortcuts</h3>
+        <dl class="mt-2 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm text-slate-600 dark:text-slate-300">
+          <dt><kbd class="rounded border border-line px-1.5 text-xs dark:border-slate-700">Ctrl S</kbd></dt><dd>Save document</dd>
+          <dt><kbd class="rounded border border-line px-1.5 text-xs dark:border-slate-700">Ctrl P</kbd></dt><dd>Print document</dd>
+          <dt><kbd class="rounded border border-line px-1.5 text-xs dark:border-slate-700">Alt N</kbd></dt><dd>New invoice</dd>
+          <dt><kbd class="rounded border border-line px-1.5 text-xs dark:border-slate-700">Alt I</kbd></dt><dd>Add line item</dd>
+        </dl>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ============ Mobile bottom nav ============ -->
+<nav class="safe-bottom fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white/95 backdrop-blur lg:hidden dark:border-slate-800 dark:bg-slate-950/95" aria-label="Main">
+  <div class="mx-auto grid h-16 max-w-lg grid-cols-5 px-1">
+    <button class="mnav flex flex-col items-center justify-center gap-0.5 text-[11px] font-semibold text-slate-500" data-nav="dashboard"><span data-icon="home" data-size="22"></span>Overview</button>
+    <button class="mnav flex flex-col items-center justify-center gap-0.5 text-[11px] font-semibold text-slate-500" data-nav="documents"><span data-icon="file" data-size="22"></span>Documents</button>
+    <button class="flex items-center justify-center" data-action="new-menu" aria-label="New document"><span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand text-white shadow-lg shadow-brand/30" data-icon="plus" data-size="24"></span></button>
+    <button class="mnav flex flex-col items-center justify-center gap-0.5 text-[11px] font-semibold text-slate-500" data-nav="services"><span data-icon="box" data-size="22"></span>Services</button>
+    <button class="mnav flex flex-col items-center justify-center gap-0.5 text-[11px] font-semibold text-slate-500" data-nav="clients"><span data-icon="users" data-size="22"></span>Clients</button>
+  </div>
+</nav>
+
+<!-- Modal root & toasts -->
+<div id="modalRoot"></div>
+<div id="toasts" class="pointer-events-none fixed inset-x-0 z-[90] flex flex-col items-center gap-2 px-4 top-[calc(4.5rem+env(safe-area-inset-top))] lg:top-auto lg:bottom-6" aria-live="polite"></div>
+<div id="printArea"></div>
+
+<script>
+'use strict';
+/* =========================================================
+   Dev Ceylon Invoice Studio — single-file app
+   ========================================================= */
+const LS_KEY = 'devceylon-invoice-studio-v1';
+const WEBSITE_LOGO = 'https://www.devceylon.com/images/logoNoBg.png';
+const LIB = {
+  pdf: 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js',
+  qr: 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js'
+};
+
+/* ---------- Icons ---------- */
+const ICONS = {
+  home: '<path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+  file: '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  users: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
+  box: '<path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="m3 8 9 5 9-5M12 13v8"/>',
+  settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  moon: '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>',
+  monitor: '<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>',
+  save: '<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/>',
+  download: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>',
+  upload: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>',
+  printer: '<path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/>',
+  share: '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/>',
+  copy: '<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>',
+  trash: '<path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6"/>',
+  edit: '<path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
+  up: '<path d="m18 15-6-6-6 6"/>',
+  down: '<path d="m6 9 6 6 6-6"/>',
+  search: '<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>',
+  x: '<path d="M18 6 6 18M6 6l12 12"/>',
+  check: '<path d="M20 6 9 17l-5-5"/>',
+  mail: '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6-10 7L2 6"/>',
+  chat: '<path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.6 8.6 0 0 1-3.8-.9L3 21l1.9-5.2A8.4 8.4 0 1 1 21 11.5z"/>',
+  wallet: '<path d="M20 12V8H6a2 2 0 0 1 0-4h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/><path d="M18 12a2 2 0 0 0 0 4h4v-4z"/>',
+  alert: '<path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0zM12 9v4M12 17h.01"/>',
+  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>',
+  receipt: '<path d="M4 2v20l3-2 3 2 2-2 2 2 3-2 3 2V2l-3 2-3-2-2 2-2-2-3 2z"/><path d="M8 9h8M8 13h6"/>',
+  refresh: '<path d="M21 12a9 9 0 1 1-2.6-6.4L21 8"/><path d="M21 3v5h-5"/>',
+  pen: '<path d="M12 19l7-7 3 3-7 7zM18 13l-1.5-7.5L2 2l3.5 14.5L13 18zM2 2l7.6 7.6"/><circle cx="11" cy="11" r="2"/>',
+  more: '<circle cx="12" cy="5" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="12" cy="19" r="1.4"/>',
+  eye: '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/>',
+  arrowRight: '<path d="M5 12h14M13 5l7 7-7 7"/>',
+  swap: '<path d="M16 3l4 4-4 4M20 7H4M8 21l-4-4 4-4M4 17h16"/>',
+  link: '<path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/>'
+};
+const icon = (n, s = 18) => `<svg xmlns="http://www.w3.org/2000/svg" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n] || ''}</svg>`;
+function hydrateIcons(root = document) {
+  root.querySelectorAll('[data-icon]').forEach(el => {
+    if (el.dataset.iconDone === el.dataset.icon) return;
+    el.insertAdjacentHTML('afterbegin', icon(el.dataset.icon, +el.dataset.size || 18));
+    el.dataset.iconDone = el.dataset.icon;
+  });
+}
+
+/* ---------- Utilities ---------- */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const uid = () => Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-4);
+const clone = o => JSON.parse(JSON.stringify(o));
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const num = v => { const n = parseFloat(v); return Number.isFinite(n) ? n : 0; };
+const r2 = n => Math.round((n + Number.EPSILON) * 100) / 100;
+const pad = (n, l = 2) => String(n).padStart(l, '0');
+const isoOf = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const todayISO = () => isoOf(new Date());
+const parseISO = s => { const [y, m, d] = String(s || '').split('-').map(Number); return y ? new Date(y, m - 1, d) : null; };
+const addDays = (iso, n) => { const d = parseISO(iso) || new Date(); d.setDate(d.getDate() + n); return isoOf(d); };
+const daysBetween = (a, b) => Math.round((parseISO(b) - parseISO(a)) / 864e5);
+const fmtDate = iso => { const d = parseISO(iso); return d ? d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'; };
+const getPath = (o, p) => p.split('.').reduce((a, k) => (a == null ? a : a[k]), o);
+const setPath = (o, p, v) => { const ks = p.split('.'); const last = ks.pop(); const t = ks.reduce((a, k) => (a[k] ??= {}), o); t[last] = v; };
+const debounce = (fn, ms) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
+const loadedScripts = {};
+function loadScript(src) {
+  if (loadedScripts[src]) return loadedScripts[src];
+  return (loadedScripts[src] = new Promise((res, rej) => {
+    const s = document.createElement('script'); s.src = src; s.async = true;
+    s.onload = res; s.onerror = () => { delete loadedScripts[src]; rej(new Error('Could not load ' + src)); };
+    document.head.appendChild(s);
+  }));
+}
+
+/* ---------- Money ---------- */
+const CURRENCIES = {
+  LKR: { symbol: 'Rs.', major: 'Rupees', minor: 'Cents', label: 'LKR — Sri Lankan rupee' },
+  USD: { symbol: '$', major: 'US Dollars', minor: 'Cents', label: 'USD — US dollar' },
+  EUR: { symbol: '€', major: 'Euros', minor: 'Cents', label: 'EUR — Euro' },
+  GBP: { symbol: '£', major: 'Pounds', minor: 'Pence', label: 'GBP — British pound' },
+  AUD: { symbol: 'A$', major: 'Australian Dollars', minor: 'Cents', label: 'AUD — Australian dollar' },
+  CAD: { symbol: 'C$', major: 'Canadian Dollars', minor: 'Cents', label: 'CAD — Canadian dollar' },
+  SGD: { symbol: 'S$', major: 'Singapore Dollars', minor: 'Cents', label: 'SGD — Singapore dollar' },
+  AED: { symbol: 'AED', major: 'Dirhams', minor: 'Fils', label: 'AED — UAE dirham' },
+  INR: { symbol: '₹', major: 'Indian Rupees', minor: 'Paise', label: 'INR — Indian rupee' },
+  JPY: { symbol: '¥', major: 'Yen', minor: 'Sen', label: 'JPY — Japanese yen' }
+};
+function money(n, cur = 'LKR') {
+  const c = CURRENCIES[cur] || { symbol: cur };
+  const neg = n < 0; const v = Math.abs(r2(n)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const sym = c.symbol; const sep = /[A-Za-z.]$/.test(sym) ? ' ' : '';
+  return (neg ? '-' : '') + sym + sep + v;
+}
+function moneyShort(n, cur = 'LKR') {
+  const c = CURRENCIES[cur] || { symbol: cur }; const a = Math.abs(n);
+  const s = a >= 1e6 ? (a / 1e6).toFixed(a >= 1e7 ? 1 : 2).replace(/\.?0+$/, '') + 'M' : a >= 1e3 ? (a / 1e3).toFixed(a >= 1e5 ? 0 : 1).replace(/\.0$/, '') + 'K' : a.toFixed(0);
+  return (n < 0 ? '-' : '') + c.symbol + (/[A-Za-z.]$/.test(c.symbol) ? ' ' : '') + s;
+}
+const ONES = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+const TENS = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+function words999(n) {
+  let out = [];
+  if (n >= 100) { out.push(ONES[Math.floor(n / 100)] + ' Hundred'); n %= 100; if (n) out.push('and'); }
+  if (n >= 20) { out.push(TENS[Math.floor(n / 10)] + (n % 10 ? '-' + ONES[n % 10] : '')); }
+  else if (n > 0) out.push(ONES[n]);
+  return out.join(' ');
+}
+function intWords(n) {
+  if (n === 0) return 'Zero';
+  const scales = ['', 'Thousand', 'Million', 'Billion', 'Trillion']; const parts = []; let i = 0;
+  while (n > 0 && i < scales.length) { const c = n % 1000; if (c) parts.unshift(words999(c) + (scales[i] ? ' ' + scales[i] : '')); n = Math.floor(n / 1000); i++; }
+  return parts.join(' ');
+}
+function amountInWords(amount, cur) {
+  const c = CURRENCIES[cur] || { major: cur, minor: 'Cents' };
+  const cents = Math.round(Math.abs(amount) * 100); const major = Math.floor(cents / 100); const minor = cents % 100;
+  let s = `${c.major} ${intWords(major)}`;
+  if (minor && cur !== 'JPY') s += ` and ${c.minor} ${intWords(minor)}`;
+  return s + ' Only';
+}
+
+/* ---------- Constants ---------- */
+const TERMS = [
+  { v: 'receipt', l: 'Due on receipt', d: 0 }, { v: 'net7', l: 'Net 7 days', d: 7 }, { v: 'net14', l: 'Net 14 days', d: 14 },
+  { v: 'net15', l: 'Net 15 days', d: 15 }, { v: 'net30', l: 'Net 30 days', d: 30 }, { v: 'net45', l: 'Net 45 days', d: 45 },
+  { v: 'net60', l: 'Net 60 days', d: 60 }, { v: 'custom', l: 'Custom date', d: null }
+];
+const UNITS = ['item', 'hour', 'day', 'week', 'month', 'year', 'project', 'milestone', 'screen', 'page', 'licence', 'user'];
+const METHODS = ['Bank transfer', 'Cash', 'Card', 'Cheque', 'Online gateway', 'PayPal', 'Payoneer', 'Other'];
+const STATUSES = {
+  invoice: [['draft', 'Draft'], ['sent', 'Sent'], ['cancelled', 'Cancelled']],
+  quotation: [['draft', 'Draft'], ['sent', 'Sent'], ['accepted', 'Accepted'], ['declined', 'Declined']],
+  receipt: [['issued', 'Issued']]
+};
+const STATUS_LABEL = { draft: 'Draft', sent: 'Sent', paid: 'Paid', partial: 'Part paid', overdue: 'Overdue', cancelled: 'Cancelled', accepted: 'Accepted', declined: 'Declined', expired: 'Expired', issued: 'Issued' };
+const STATUS_CHIP = {
+  draft: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300',
+  sent: 'bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300',
+  paid: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300',
+  issued: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300',
+  accepted: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300',
+  partial: 'bg-cyan-50 text-cyan-800 dark:bg-cyan-950/60 dark:text-cyan-300',
+  overdue: 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300',
+  expired: 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300',
+  cancelled: 'bg-red-50 text-red-700 dark:bg-red-950/60 dark:text-red-300',
+  declined: 'bg-red-50 text-red-700 dark:bg-red-950/60 dark:text-red-300'
+};
+const TYPE_LABEL = { invoice: 'Invoice', quotation: 'Quotation', receipt: 'Receipt' };
+const SWATCHES = ['#1E40AF', '#0E7490', '#0F766E', '#7C3AED', '#BE185D', '#B45309', '#0F1B3D'];
+
+const DEFAULT_SERVICES = [
+  ['Product Strategy', 'Discovery workshop', 'Stakeholder interviews, user goals, feature map and MVP scope with a written summary.', 'project', 150000],
+  ['Product Strategy', 'Product roadmap and MVP scoping', 'Prioritised roadmap, release plan and effort estimate.', 'project', 120000],
+  ['UX/UI Design', 'UX research and wireframes', 'User flows and low-fidelity wireframes for review.', 'screen', 8000],
+  ['UX/UI Design', 'UI design (high fidelity)', 'Pixel-ready screens built on a reusable component system.', 'screen', 12000],
+  ['UX/UI Design', 'Design system setup', 'Colours, type, components and usage guidelines in Figma.', 'project', 180000],
+  ['Web Apps', 'Corporate website', 'Responsive, SEO-friendly website up to 8 pages with CMS.', 'project', 250000],
+  ['Web Apps', 'E-commerce store', 'Storefront with product catalogue, cart, payment gateway and admin panel.', 'project', 650000],
+  ['Web Apps', 'Custom web application', 'Full-stack web app development, billed per milestone.', 'milestone', 400000],
+  ['Mobile Apps', 'Cross-platform mobile app', 'iOS and Android app from one codebase, including store submission.', 'project', 900000],
+  ['Mobile Apps', 'App store publishing', 'Developer account setup, listings, screenshots and review handling.', 'item', 35000],
+  ['Cloud & DevOps', 'Cloud setup and CI/CD', 'Hosting setup, deployment pipeline, SSL and monitoring.', 'project', 95000],
+  ['Cloud & DevOps', 'Managed hosting', 'Hosting, backups and uptime monitoring.', 'month', 12500],
+  ['Cloud & DevOps', 'Domain registration', 'Domain name registration or renewal.', 'year', 6500],
+  ['Security & QA', 'Security audit', 'Vulnerability assessment with a findings report and fix plan.', 'project', 140000],
+  ['Security & QA', 'QA and test automation', 'Manual and automated testing for a release.', 'day', 18000],
+  ['Support', 'Maintenance retainer', 'Bug fixes, updates and small changes up to 10 hours a month.', 'month', 45000],
+  ['Support', 'Development hours', 'Additional development or change requests.', 'hour', 4500],
+  ['Support', 'Consultation', 'Technical consultation session.', 'hour', 6000]
+];
+
+function defaultSettings() {
+  return {
+    company: { name: 'Dev Ceylon', tagline: 'Build, launch, and scale digital products.', address: '163, New Kandy Rd,\nMalabe, Sri Lanka', phone: '+94 70 705 3131', email: '', website: 'www.devceylon.com', regNo: '', taxId: '' },
+    logo: WEBSITE_LOGO, logoHeight: 52,
+    signatory: { name: '', title: 'Authorised signatory', image: '' },
+    bank: { accountName: 'Dev Ceylon', accountNo: '', bankName: '', branch: '', swift: '', other: '' },
+    qr: { mode: 'summary', url: 'https://www.devceylon.com' },
+    currency: 'LKR', terms: 'net14', taxName: 'VAT', taxRate: 18, taxEnabled: false, quoteValidity: 30,
+    template: 'modern', accent: '#1E40AF',
+    prefixes: { invoice: 'DC-INV', quotation: 'DC-QUO', receipt: 'DC-RCT' },
+    counters: {},
+    defaultNotes: 'Thank you for building with Dev Ceylon. Please quote the document number with your payment.',
+    invoiceTerms: '1. Payment is due by the date shown above.\n2. Work on new phases starts after the agreed advance is received.\n3. Source code and IP transfer to the client on full settlement.\n4. Bank charges for overseas transfers are borne by the client.',
+    quoteTerms: '1. This quotation is valid until the date shown above.\n2. A 50% advance confirms the project; the balance is due on delivery.\n3. Changes outside the agreed scope are quoted separately.\n4. Third-party costs (domains, hosting, app store fees, paid APIs) are billed at cost unless listed.',
+    theme: 'system'
+  };
+}
+function defaultState() {
+  return {
+    v: 1, settings: defaultSettings(),
+    services: DEFAULT_SERVICES.map(([category, name, desc, unit, rate]) => ({ id: uid(), category, name, desc, unit, rate })),
+    clients: [], docs: [], current: null, lastView: 'dashboard'
+  };
+}
+
+/* ---------- State & persistence ---------- */
+let S = loadState();
+const UI = { view: 'dashboard', dirty: false, pane: 'form', logoData: null, docType: '', chart: null };
+function loadState() {
+  try {
+    const raw = localStorage.getItem(LS_KEY); if (!raw) return defaultState();
+    const d = JSON.parse(raw); const base = defaultState();
+    const s = Object.assign(base, d);
+    s.settings = deepMerge(defaultSettings(), d.settings || {});
+    s.services = Array.isArray(d.services) ? d.services : base.services;
+    s.clients = Array.isArray(d.clients) ? d.clients : [];
+    s.docs = Array.isArray(d.docs) ? d.docs.map(normalizeDoc) : [];
+    s.current = d.current ? normalizeDoc(d.current) : null;
+    return s;
+  } catch (e) { console.warn('State load failed', e); return defaultState(); }
+}
+function deepMerge(a, b) {
+  for (const k in b) { if (b[k] && typeof b[k] === 'object' && !Array.isArray(b[k]) && a[k] && typeof a[k] === 'object') deepMerge(a[k], b[k]); else if (b[k] !== undefined) a[k] = b[k]; }
+  return a;
+}
+let saveTimer;
+function persist(now = false) {
+  clearTimeout(saveTimer);
+  const go = () => {
+    try { localStorage.setItem(LS_KEY, JSON.stringify(S)); updateStorageInfo(); }
+    catch (e) { toast('Browser storage is full. Export a backup and remove large logo or signature images.', 'error'); }
+  };
+  now ? go() : (saveTimer = setTimeout(go, 250));
+}
+function updateStorageInfo() {
+  const el = $('#storageInfo'); if (!el) return;
+  try { const kb = (localStorage.getItem(LS_KEY) || '').length / 1024; el.textContent = `Using ${kb < 1024 ? kb.toFixed(0) + ' KB' : (kb / 1024).toFixed(2) + ' MB'} of browser storage. ${S.docs.length} documents, ${S.clients.length} clients, ${S.services.length} services.`; } catch { }
+}
+
+/* ---------- Documents ---------- */
+function normalizeDoc(d) {
+  const x = Object.assign({
+    id: uid(), type: 'invoice', number: '', status: 'draft', issueDate: todayISO(), dueDate: todayISO(), terms: 'net14', currency: 'LKR',
+    project: '', reference: '', client: {}, items: [], discountType: 'percent', discountValue: 0, taxEnabled: false, taxName: 'VAT', taxRate: 18,
+    otherLabel: '', otherAmount: 0, payments: [], notes: '', termsText: '', template: 'modern', accent: '#1E40AF',
+    opts: {}, saved: false, createdAt: Date.now(), updatedAt: Date.now()
+  }, d);
+  x.client = Object.assign({ name: '', company: '', email: '', phone: '', address: '', taxId: '' }, x.client || {});
+  x.opts = Object.assign({ showBank: true, showSignature: true, showQR: true, showWords: true, showStamp: true, showNumbers: true, showDisc: 'auto' }, x.opts || {});
+  x.items = (x.items || []).map(i => Object.assign({ id: uid(), name: '', desc: '', qty: 1, unit: 'item', rate: 0, disc: 0, taxable: true }, i));
+  x.payments = (x.payments || []).map(p => Object.assign({ id: uid(), date: todayISO(), method: 'Bank transfer', ref: '', amount: 0 }, p));
+  return x;
+}
+function counterKey(type, year) { return `${type}-${year}`; }
+function peekNumber(type, iso) {
+  const st = S.settings; const year = (iso || todayISO()).slice(0, 4);
+  const used = S.docs.filter(d => d.type === type && d.number.startsWith(`${st.prefixes[type]}-${year}-`)).map(d => parseInt(d.number.split('-').pop(), 10) || 0);
+  const n = Math.max(st.counters[counterKey(type, year)] || 0, ...used, 0) + 1;
+  return `${st.prefixes[type]}-${year}-${pad(n, 4)}`;
+}
+function commitNumber(doc) {
+  const m = doc.number.match(/-(\d{4})-(\d+)$/); if (!m) return;
+  const k = counterKey(doc.type, m[1]); S.settings.counters[k] = Math.max(S.settings.counters[k] || 0, parseInt(m[2], 10));
+}
+function newDoc(type = 'invoice', patch = {}) {
+  const st = S.settings; const issue = todayISO();
+  const d = normalizeDoc({
+    type, status: type === 'receipt' ? 'issued' : 'draft', issueDate: issue, currency: st.currency, terms: type === 'invoice' ? st.terms : (type === 'quotation' ? 'custom' : 'receipt'),
+    taxEnabled: st.taxEnabled, taxName: st.taxName, taxRate: st.taxRate, notes: st.defaultNotes,
+    termsText: type === 'quotation' ? st.quoteTerms : (type === 'invoice' ? st.invoiceTerms : ''), template: st.template, accent: st.accent,
+    items: [{ name: '', desc: '', qty: 1, unit: 'item', rate: 0 }]
+  });
+  d.dueDate = type === 'quotation' ? addDays(issue, st.quoteValidity || 30) : addDays(issue, termDays(d.terms) ?? 0);
+  if (type === 'receipt') d.opts.showSignature = true;
+  Object.assign(d, patch);
+  d.number = peekNumber(type, d.issueDate);
+  return d;
+}
+const termDays = v => (TERMS.find(t => t.v === v) || {}).d;
+
+function calc(doc) {
+  let sub = 0, taxableSub = 0, lineDisc = 0;
+  const lines = doc.items.map(i => {
+    const gross = num(i.qty) * num(i.rate); const dAmt = gross * Math.min(100, Math.max(0, num(i.disc))) / 100; const amt = r2(gross - dAmt);
+    sub += amt; lineDisc += dAmt; if (i.taxable !== false) taxableSub += amt; return amt;
+  });
+  sub = r2(sub);
+  let discount = doc.discountType === 'fixed' ? num(doc.discountValue) : sub * Math.min(100, Math.max(0, num(doc.discountValue))) / 100;
+  discount = r2(Math.min(Math.max(discount, 0), sub));
+  const ratio = sub > 0 ? (sub - discount) / sub : 0;
+  const taxBase = r2(taxableSub * ratio);
+  const tax = doc.taxEnabled ? r2(taxBase * num(doc.taxRate) / 100) : 0;
+  const other = r2(num(doc.otherAmount));
+  const total = r2(sub - discount + tax + other);
+  const paid = r2(doc.payments.reduce((a, p) => a + num(p.amount), 0));
+  const balance = r2(total - paid);
+  return { lines, sub, lineDisc: r2(lineDisc), discount, taxBase, tax, other, total, paid, balance };
+}
+function effStatus(doc, t = calc(doc)) {
+  const today = todayISO();
+  if (doc.type === 'receipt') return 'paid';
+  if (doc.type === 'quotation') {
+    if (doc.status === 'sent' && doc.dueDate && doc.dueDate < today) return 'expired';
+    return doc.status;
+  }
+  if (doc.status === 'cancelled' || doc.status === 'draft') return doc.status;
+  if (t.total > 0 && t.balance <= 0.004) return 'paid';
+  if (doc.dueDate && doc.dueDate < today) return 'overdue';
+  if (t.paid > 0) return 'partial';
+  return 'sent';
+}
+const docTitle = d => TYPE_LABEL[d.type] + (d.number ? ' ' + d.number : '');
+const clientLabel = c => c.company || c.name || 'No client';
+
+/* ---------- Invoice renderer ---------- */
+const qrCache = {};
+function qrData(text) {
+  if (!text) return '';
+  if (qrCache[text]) return qrCache[text];
+  if (!window.QRCode) { loadScript(LIB.qr).then(() => schedulePreview()).catch(() => { }); return ''; }
+  try {
+    const tmp = document.createElement('div');
+    new QRCode(tmp, { text, width: 240, height: 240, colorDark: '#0F1B3D', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
+    const c = tmp.querySelector('canvas'); const url = c ? c.toDataURL('image/png') : (tmp.querySelector('img') || {}).src || '';
+    return (qrCache[text] = url);
+  } catch { return ''; }
+}
+function qrTextFor(doc, t) {
+  const st = S.settings;
+  if (st.qr.mode === 'url' && st.qr.url) return st.qr.url;
+  return `${st.company.name}\n${TYPE_LABEL[doc.type]} ${doc.number}\n${doc.type === 'receipt' ? 'Received' : 'Amount due'}: ${money(doc.type === 'receipt' ? t.paid : t.balance, doc.currency)}${doc.type !== 'receipt' ? '\nDue: ' + fmtDate(doc.dueDate) : ''}${st.company.website ? '\n' + st.company.website : ''}`;
+}
+function renderInvoice(doc, { exporting = false, logoSrc } = {}) {
+  const st = S.settings; const co = st.company; const c = doc.client; const t = calc(doc); const status = effStatus(doc, t); const cur = doc.currency;
+  const showDisc = doc.items.some(i => num(i.disc) > 0);
+  const hasTax = doc.taxEnabled && t.tax > 0; const typeName = TYPE_LABEL[doc.type];
+  const logo = logoSrc ?? st.logo;
+  const brand = logo
+    ? `<img src="${esc(logo)}" alt="${esc(co.name)}" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><div class="wordmark" style="display:none">${esc(co.name)}</div>`
+    : `<div class="wordmark">${esc(co.name)}</div>`;
+  const dueLabel = doc.type === 'quotation' ? 'Valid until' : 'Due date';
+  const termL = (TERMS.find(x => x.v === doc.terms) || {}).l;
+  const kv = [
+    [doc.type === 'receipt' ? 'Payment date' : 'Issue date', fmtDate(doc.issueDate)],
+    doc.type !== 'receipt' ? [dueLabel, fmtDate(doc.dueDate)] : null,
+    doc.type === 'invoice' && doc.terms !== 'custom' ? ['Terms', termL] : null,
+    doc.reference ? ['Reference', esc(doc.reference)] : null,
+    ['Currency', cur]
+  ].filter(Boolean);
+  const coLines = [co.address, co.phone, co.email, co.website].filter(Boolean).map(esc).join('\n');
+  const coIds = [co.regNo ? 'Reg. No: ' + esc(co.regNo) : '', co.taxId ? 'VAT/TIN: ' + esc(co.taxId) : ''].filter(Boolean).join('\n');
+  const clLines = [c.company && c.name ? c.name : '', c.address, c.phone, c.email, c.taxId ? 'VAT/TIN: ' + c.taxId : ''].filter(Boolean).map(esc).join('\n');
+  const rows = doc.items.filter(i => i.name || i.desc || num(i.rate)).map((i, k) => `
+    <tr>
+      ${doc.opts.showNumbers ? `<td class="idx num">${k + 1}</td>` : ''}
+      <td><div class="iname">${esc(i.name) || '&nbsp;'}</div>${i.desc ? `<div class="idesc">${esc(i.desc)}</div>` : ''}</td>
+      <td class="r num">${esc(+num(i.qty).toFixed(2))} <span class="muted">${esc(i.unit && i.unit !== 'item' ? i.unit + (num(i.qty) === 1 ? '' : 's') : '')}</span></td>
+      <td class="r num">${money(num(i.rate), cur)}</td>
+      ${showDisc ? `<td class="r num">${num(i.disc) ? num(i.disc) + '%' : '—'}</td>` : ''}
+      <td class="r num" style="font-weight:700">${money(t.lines[doc.items.indexOf(i)], cur)}</td>
+    </tr>`).join('');
+  const cols = (doc.opts.showNumbers ? 1 : 0) + 4 + (showDisc ? 1 : 0);
+  const discLabel = doc.discountType === 'percent' && num(doc.discountValue) ? `Discount (${num(doc.discountValue)}%)` : 'Discount';
+  const totals = [
+    ['Subtotal', money(t.sub, cur)],
+    t.discount ? [discLabel, '-' + money(t.discount, cur)] : null,
+    hasTax ? [`${esc(doc.taxName || 'Tax')} (${num(doc.taxRate)}%)`, money(t.tax, cur)] : null,
+    t.other ? [esc(doc.otherLabel || 'Other charges'), money(t.other, cur)] : null
+  ].filter(Boolean);
+  const paidRows = doc.type !== 'quotation' && t.paid ? `<tr><td>${doc.type === 'receipt' ? 'Amount received' : 'Paid to date'}</td><td class="r num">-${money(t.paid, cur)}</td></tr>` : '';
+  const balanceLabel = doc.type === 'quotation' ? 'Quoted total' : doc.type === 'receipt' ? 'Amount received' : (status === 'paid' ? 'Paid in full' : 'Balance due');
+  const balanceVal = doc.type === 'quotation' ? t.total : doc.type === 'receipt' ? t.paid : Math.max(t.balance, 0);
+  const wordsAmt = doc.type === 'quotation' ? t.total : doc.type === 'receipt' ? t.paid : t.total;
+  const b = st.bank;
+  const bankRows = [['Account name', b.accountName], ['Account no.', b.accountNo], ['Bank', b.bankName], ['Branch', b.branch], ['SWIFT', b.swift], ['Other', b.other]].filter(r => r[1]);
+  const showBank = doc.opts.showBank && doc.type !== 'receipt' && bankRows.length > 0;
+  const qr = doc.opts.showQR ? qrData(qrTextFor(doc, t)) : '';
+  const stampMap = { paid: 'Paid', overdue: 'Overdue', draft: 'Draft', cancelled: 'Cancelled', accepted: 'Accepted' };
+  const stamp = doc.opts.showStamp && stampMap[status] ? `<div class="stamp ${status}">${stampMap[status]}</div>` : '';
+  const sig = st.signatory;
+  const showSig = doc.opts.showSignature && (sig.image || sig.name);
+  const payList = doc.type !== 'quotation' && doc.payments.length ? `<div class="paylist"><h4>Payment history</h4>${doc.payments.map(p => `<div><span>${fmtDate(p.date)} · ${esc(p.method)}${p.ref ? ' · ' + esc(p.ref) : ''}</span><span class="num">${money(num(p.amount), cur)}</span></div>`).join('')}</div>` : '';
+  const statusChip = doc.type === 'receipt' ? '' : `<div class="status ${status}">${STATUS_LABEL[status] || ''}</div>`;
+
+  return `<div class="inv tpl-${esc(doc.template || 'modern')}${exporting ? ' export' : ''}" style="--accent:${esc(doc.accent || '#1E40AF')};--logo-h:${num(st.logoHeight) || 52}px">
+    <div class="rail"></div>
+    ${stamp}
+    <div class="head pad">
+      <div class="brand">${brand}${co.tagline ? `<div class="tag">${esc(co.tagline)}</div>` : ''}</div>
+      <div class="title"><h1>${typeName}</h1><div class="no num">${esc(doc.number)}</div>${statusChip}</div>
+    </div>
+    <div class="pad">
+      <div class="meta">
+        <div><h4>From</h4><p class="strong">${esc(co.name)}</p><p class="muted">${coLines}</p>${coIds ? `<p class="muted" style="margin-top:4px">${coIds}</p>` : ''}</div>
+        <div><h4>${doc.type === 'receipt' ? 'Received from' : doc.type === 'quotation' ? 'Prepared for' : 'Bill to'}</h4><p class="strong">${esc(c.company || c.name) || '<span class="muted">Client name</span>'}</p><p class="muted">${clLines}</p></div>
+        <div><h4>Details</h4><dl class="kv">${kv.map(([k, v]) => `<dt>${k}</dt><dd class="num">${v}</dd>`).join('')}</dl></div>
+      </div>
+      ${doc.project ? `<div class="project"><span class="muted">Project</span> <b>${esc(doc.project)}</b></div>` : ''}
+      <table class="items">
+        <thead><tr>${doc.opts.showNumbers ? '<th>#</th>' : ''}<th>Description</th><th class="r">Qty</th><th class="r">Rate</th>${showDisc ? '<th class="r">Disc.</th>' : ''}<th class="r">Amount</th></tr></thead>
+        <tbody>${rows || `<tr><td colspan="${cols}" class="empty-items">Add line items to see them here.</td></tr>`}</tbody>
+      </table>
+      <div class="sum">
+        <div>
+          ${doc.opts.showWords && wordsAmt > 0 ? `<div class="words"><b>Amount in words</b>${esc(amountInWords(wordsAmt, cur))}</div>` : ''}
+          ${payList}
+        </div>
+        <div>
+          <table class="totals num">
+            ${totals.map(([k, v]) => `<tr><td>${k}</td><td class="r">${v}</td></tr>`).join('')}
+            <tr class="grand"><td>Total</td><td class="r">${money(t.total, cur)}</td></tr>
+            ${doc.type === 'invoice' ? paidRows : ''}
+          </table>
+          <div class="balance"><span>${balanceLabel}</span><span class="num">${money(balanceVal, cur)}</span></div>
+        </div>
+      </div>
+      ${(showBank || qr) ? `<div class="lower">
+        <div class="box">${showBank ? `<h4>Payment details</h4><dl class="bank">${bankRows.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join('')}</dl>` : ''}</div>
+        ${qr ? `<div class="qr"><img src="${qr}" alt="QR code"><small>${st.qr.mode === 'url' ? 'Scan to open' : 'Scan for details'}</small></div>` : ''}
+      </div>` : ''}
+      ${(doc.notes || doc.termsText) ? `<div class="notes">
+        ${doc.notes ? `<div class="box"><h4>Note</h4><p>${esc(doc.notes)}</p></div>` : '<div></div>'}
+        ${doc.termsText ? `<div class="box"><h4>Terms</h4><p class="muted" style="font-size:11px">${esc(doc.termsText)}</p></div>` : ''}
+      </div>` : ''}
+      ${showSig ? `<div class="sign"><div>${sig.image ? `<img src="${esc(sig.image)}" alt="Signature">` : '<div style="height:44px"></div>'}<div class="line">${esc(sig.name || co.name)}</div><small>${esc(sig.title || '')}</small></div></div>` : ''}
+    </div>
+    <div class="grow"></div>
+    <div class="foot pad"><span><b>${esc(co.name)}</b>${co.website ? ' · ' + esc(co.website) : ''}</span><span>${[co.phone, co.email].filter(Boolean).map(esc).join(' · ')}</span></div>
+  </div>`;
+}
+
+/* ---------- Views & navigation ---------- */
+function go(view) {
+  if (!$('#view-' + view)) view = 'dashboard';
+  closeViewer();
+  UI.view = view; S.lastView = view; persist();
+  $$('.view').forEach(v => v.hidden = v.id !== 'view-' + view);
+  $$('.nav-link').forEach(b => { const on = b.dataset.nav === view; b.classList.toggle('text-brand', on); b.classList.toggle('bg-brand-50', on); b.classList.toggle('dark:bg-brand/20', on); b.classList.toggle('dark:text-blue-300', on); b.setAttribute('aria-current', on ? 'page' : 'false'); });
+  $$('.mnav').forEach(b => { const on = b.dataset.nav === view; b.classList.toggle('text-brand', on); b.classList.toggle('dark:text-blue-400', on); b.classList.toggle('text-slate-500', !on); });
+  if (view === 'dashboard') renderDashboard();
+  if (view === 'documents') renderDocs();
+  if (view === 'clients') renderClients();
+  if (view === 'services') renderServices();
+  if (view === 'settings') fillSettings();
+  if (view === 'editor') { if (!S.current) S.current = newDoc('invoice'); fillEditor(); fitPreview(); }
+  const hash = '#' + view; if (location.hash !== hash) history.replaceState(null, '', hash);
+  window.scrollTo({ top: 0 });
+}
+
+/* ---------- Dashboard ---------- */
+function renderDashboard() {
+  const h = new Date().getHours();
+  $('#greeting').textContent = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+  const empty = S.docs.length === 0;
+  $('#dashEmpty').hidden = !empty; $('#dashBody').hidden = empty;
+  if (empty) { $('#dashSub').textContent = 'Nothing billed yet.'; return; }
+  const cur = S.settings.currency; const year = String(new Date().getFullYear());
+  const invs = S.docs.filter(d => d.type === 'invoice' && d.currency === cur && !['draft', 'cancelled'].includes(d.status));
+  const withT = invs.map(d => ({ d, t: calc(d), s: effStatus(d) }));
+  const yearBilled = withT.filter(x => x.d.issueDate.startsWith(year)).reduce((a, x) => a + x.t.total, 0);
+  const collectedYear = withT.reduce((a, x) => a + x.d.payments.filter(p => (p.date || '').startsWith(year)).reduce((s, p) => s + num(p.amount), 0), 0);
+  const outstanding = withT.filter(x => x.t.balance > 0).reduce((a, x) => a + x.t.balance, 0);
+  const overdue = withT.filter(x => x.s === 'overdue');
+  const overdueAmt = overdue.reduce((a, x) => a + x.t.balance, 0);
+  const quotes = S.docs.filter(d => d.type === 'quotation' && d.currency === cur);
+  const openQ = quotes.filter(q => ['sent', 'draft'].includes(effStatus(q)));
+  const decided = quotes.filter(q => ['accepted', 'declined'].includes(q.status));
+  const winRate = decided.length ? Math.round(decided.filter(q => q.status === 'accepted').length / decided.length * 100) : null;
+  $('#dashSub').textContent = `Figures in ${cur} for ${year}. Drafts and cancelled invoices are left out.`;
+  const card = (label, value, sub, tone = '') => `<div class="panel p-4"><div class="text-[13px] font-semibold text-slate-500 dark:text-slate-400">${label}</div><div class="num mt-1 truncate text-xl font-extrabold tracking-tight sm:text-2xl ${tone}" title="${esc(value)}">${value}</div><div class="mt-1 truncate text-xs text-slate-500 dark:text-slate-400">${sub}</div></div>`;
+  $('#statCards').innerHTML =
+    card('Billed this year', moneyShort(yearBilled, cur), `${withT.filter(x => x.d.issueDate.startsWith(year)).length} invoices`) +
+    card('Collected this year', moneyShort(collectedYear, cur), yearBilled ? `${Math.round(collectedYear / yearBilled * 100)}% of billed` : 'No payments yet', 'text-lagoon dark:text-cyan-400') +
+    card('Outstanding', moneyShort(outstanding, cur), `${withT.filter(x => x.t.balance > 0).length} unpaid invoices`) +
+    card('Overdue', moneyShort(overdueAmt, cur), overdue.length ? `${overdue.length} past due date` : 'Nothing overdue', overdue.length ? 'text-amber dark:text-amber-400' : '');
+
+  // chart: last 6 months
+  const months = []; const now = new Date();
+  for (let i = 5; i >= 0; i--) { const d = new Date(now.getFullYear(), now.getMonth() - i, 1); months.push({ key: `${d.getFullYear()}-${pad(d.getMonth() + 1)}`, label: d.toLocaleDateString('en-GB', { month: 'short' }), billed: 0, coll: 0 }); }
+  withT.forEach(x => { const m = months.find(m => x.d.issueDate.startsWith(m.key)); if (m) m.billed += x.t.total; x.d.payments.forEach(p => { const pm = months.find(m => (p.date || '').startsWith(m.key)); if (pm) pm.coll += num(p.amount); }); });
+  const max = Math.max(1, ...months.map(m => Math.max(m.billed, m.coll)));
+  UI.chart = { months, max, cur }; drawChart();
+  $('#chartNote').textContent = `Last 6 months, ${cur}. Highest month ${moneyShort(max, cur)}.`;
+
+  // attention
+  const dueSoon = withT.filter(x => x.s !== 'overdue' && x.t.balance > 0 && x.d.dueDate >= todayISO() && daysBetween(todayISO(), x.d.dueDate) <= 7);
+  const att = [
+    ...overdue.sort((a, b) => a.d.dueDate.localeCompare(b.d.dueDate)).map(x => ({ d: x.d, tone: 'amber', text: `${daysBetween(x.d.dueDate, todayISO())} days overdue`, amt: x.t.balance })),
+    ...dueSoon.map(x => ({ d: x.d, tone: 'blue', text: x.d.dueDate === todayISO() ? 'Due today' : `Due in ${daysBetween(todayISO(), x.d.dueDate)} days`, amt: x.t.balance })),
+    ...openQ.filter(q => q.status === 'sent').map(q => ({ d: q, tone: 'slate', text: `Quote awaiting reply, valid to ${fmtDate(q.dueDate)}`, amt: calc(q).total }))
+  ].slice(0, 6);
+  $('#attention').innerHTML = att.length ? att.map(a => `<button class="flex w-full items-center gap-3 rounded-xl border border-line p-3 text-left transition hover:border-brand dark:border-slate-800" data-open="${a.d.id}">
+      <span class="h-9 w-1 shrink-0 rounded-full ${a.tone === 'amber' ? 'bg-amber' : a.tone === 'blue' ? 'bg-brand' : 'bg-slate-300 dark:bg-slate-600'}"></span>
+      <span class="min-w-0 flex-1"><span class="block truncate text-sm font-bold">${esc(clientLabel(a.d.client))}</span><span class="block truncate text-xs text-slate-500 dark:text-slate-400">${esc(a.d.number)} · ${a.text}</span></span>
+      <span class="num shrink-0 text-sm font-bold">${moneyShort(a.amt, a.d.currency)}</span></button>`).join('')
+    : `<p class="rounded-xl bg-slate-50 p-4 text-sm text-slate-500 dark:bg-slate-800/50 dark:text-slate-400">All clear. No overdue invoices or payments due this week.${winRate !== null ? ` Quote acceptance rate: ${winRate}%.` : ''}</p>`;
+
+  // recent
+  const recent = [...S.docs].sort((a, b) => b.updatedAt - a.updatedAt).slice(0, 6);
+  $('#recentDocs').innerHTML = recent.map(docRow).join('');
+  // top clients
+  const byClient = {};
+  withT.forEach(x => { const k = clientLabel(x.d.client); byClient[k] = (byClient[k] || 0) + x.t.total; });
+  const top = Object.entries(byClient).sort((a, b) => b[1] - a[1]).slice(0, 5); const tmax = top[0]?.[1] || 1;
+  $('#topClients').innerHTML = top.length ? top.map(([n, v]) => `<div><div class="flex justify-between gap-3 text-sm"><span class="truncate font-semibold">${esc(n)}</span><span class="num shrink-0 font-bold">${moneyShort(v, cur)}</span></div><div class="mt-1.5 h-1.5 rounded-full bg-slate-100 dark:bg-slate-800"><div class="h-1.5 rounded-full bg-brand" style="width:${Math.max(4, v / tmax * 100)}%"></div></div></div>`).join('')
+    : '<p class="text-sm text-slate-500 dark:text-slate-400">Clients appear here once invoices are sent.</p>';
+}
+
+function drawChart() {
+  const el = $('#chart'); if (!el || !UI.chart || UI.view !== 'dashboard') return;
+  const { months, max, cur } = UI.chart;
+  const W = Math.max(260, el.clientWidth || 600); const small = W < 480;
+  const H = small ? 170 : 210, top = 8, axis = 24, plotH = H - top;
+  const gw = W / months.length, bw = Math.max(8, Math.min(28, gw / 3.4)), gap = small ? 2 : 4;
+  let svg = `<svg width="${W}" height="${H + axis}" viewBox="0 0 ${W} ${H + axis}" role="img" aria-label="Billed and collected by month" style="display:block;max-width:100%">`;
+  [0.25, 0.5, 0.75, 1].forEach(f => { const y = H - f * plotH; svg += `<line x1="0" x2="${W}" y1="${y}" y2="${y}" stroke="currentColor" class="text-slate-200 dark:text-slate-800" stroke-dasharray="3 4"/>`; });
+  svg += `<text x="0" y="${top + 10}" font-size="11" fill="currentColor" class="text-slate-400">${esc(moneyShort(max, cur))}</text>`;
+  svg += `<line x1="0" x2="${W}" y1="${H}" y2="${H}" stroke="currentColor" class="text-slate-300 dark:text-slate-700"/>`;
+  months.forEach((m, i) => {
+    const cx = gw * i + gw / 2; const hb = m.billed / max * plotH; const hc = m.coll / max * plotH;
+    svg += `<rect x="${cx - bw - gap / 2}" y="${H - hb}" width="${bw}" height="${Math.max(hb, m.billed ? 2 : 0)}" rx="${small ? 3 : 4}" fill="#1E40AF"><title>${m.label}: billed ${money(m.billed, cur)}</title></rect>`;
+    svg += `<rect x="${cx + gap / 2}" y="${H - hc}" width="${bw}" height="${Math.max(hc, m.coll ? 2 : 0)}" rx="${small ? 3 : 4}" fill="#0E7490"><title>${m.label}: collected ${money(m.coll, cur)}</title></rect>`;
+    svg += `<text x="${cx}" y="${H + 17}" text-anchor="middle" font-size="12" font-weight="600" fill="currentColor" class="text-slate-500">${m.label}</text>`;
+  });
+  el.innerHTML = svg + '</svg>';
+}
+
+/* ---------- Document list ---------- */
+function docRow(d) {
+  const t = calc(d); const s = effStatus(d, t);
+  const sub = d.type === 'invoice' && t.balance > 0 && t.paid > 0 ? `Due ${money(t.balance, d.currency)}` : '';
+  const tone = d.type === 'invoice' ? 'bg-brand-50 text-brand dark:bg-brand/20 dark:text-blue-300' : d.type === 'quotation' ? 'bg-violet-50 text-violet-700 dark:bg-violet-950/50 dark:text-violet-300' : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300';
+  return `<div class="flex items-center gap-1 border-b border-line py-1 last:border-0 dark:border-slate-800">
+    <button class="flex min-w-0 flex-1 items-center gap-3 rounded-xl py-2.5 pr-1 text-left" data-open="${d.id}">
+      <span class="hidden h-10 w-10 shrink-0 items-center justify-center rounded-xl min-[400px]:flex ${tone}">${icon(d.type === 'receipt' ? 'receipt' : 'file', 18)}</span>
+      <span class="min-w-0 flex-1">
+        <span class="flex items-baseline justify-between gap-3">
+          <span class="min-w-0 truncate font-bold">${esc(clientLabel(d.client))}</span>
+          <span class="num shrink-0 font-bold">${money(t.total, d.currency)}</span>
+        </span>
+        <span class="mt-0.5 flex items-center justify-between gap-3">
+          <span class="min-w-0 truncate text-xs text-slate-500 dark:text-slate-400">${esc(d.number)} · ${fmtDate(d.issueDate)}${d.project ? '<span class="hidden sm:inline"> · ' + esc(d.project) + '</span>' : ''}</span>
+          <span class="flex shrink-0 items-center gap-2">${sub ? `<span class="num hidden text-xs font-semibold text-slate-500 min-[400px]:inline dark:text-slate-400">${sub}</span>` : ''}<span class="chip ${STATUS_CHIP[s] || ''}">${STATUS_LABEL[s] || s}</span></span>
+        </span>
+      </span>
+    </button>
+    <button class="icon-btn shrink-0" data-docmenu="${d.id}" aria-label="Actions for ${esc(d.number)}">${icon('more', 18)}</button>
+  </div>`;
+}
+function renderDocs() {
+  const q = $('#docSearch').value.trim().toLowerCase(); const ty = UI.docType || '';
+  $$('#docTypeChips [data-doctype]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.doctype === ty))); const stf = $('#docStatus').value; const sort = $('#docSort').value;
+  const stSel = $('#docStatus');
+  if (!stSel.dataset.filled) { stSel.innerHTML = '<option value="">Any status</option>' + ['draft', 'sent', 'partial', 'paid', 'overdue', 'accepted', 'declined', 'expired', 'cancelled'].map(s => `<option value="${s}">${STATUS_LABEL[s]}</option>`).join(''); stSel.dataset.filled = 1; }
+  let list = S.docs.map(d => ({ d, t: calc(d), s: effStatus(d) }));
+  if (ty) list = list.filter(x => x.d.type === ty);
+  if (stf) list = list.filter(x => x.s === stf);
+  if (q) list = list.filter(x => [x.d.number, x.d.client.name, x.d.client.company, x.d.client.email, x.d.project, x.d.reference].join(' ').toLowerCase().includes(q));
+  const cmp = { 'date-desc': (a, b) => b.d.issueDate.localeCompare(a.d.issueDate) || b.d.createdAt - a.d.createdAt, 'date-asc': (a, b) => a.d.issueDate.localeCompare(b.d.issueDate), 'amt-desc': (a, b) => b.t.total - a.t.total, 'due-asc': (a, b) => a.d.dueDate.localeCompare(b.d.dueDate), 'num-desc': (a, b) => b.d.number.localeCompare(a.d.number) }[sort];
+  list.sort(cmp);
+  $('#docsSub').textContent = S.docs.length ? `${list.length} of ${S.docs.length} documents` : 'Saved invoices, quotations and receipts appear here.';
+  $('#docList').innerHTML = list.length ? `<div class="panel px-2 sm:px-4">${list.map(x => docRow(x.d)).join('')}</div>`
+    : `<div class="panel p-8 text-center"><p class="font-bold">${S.docs.length ? 'No documents match these filters' : 'No saved documents yet'}</p><p class="mt-1 text-sm text-slate-500 dark:text-slate-400">${S.docs.length ? 'Clear the search or choose a different status.' : 'Create an invoice or quotation and save it to see it here.'}</p>${S.docs.length ? '' : '<button class="btn-primary mt-4" data-action="new" data-type="invoice">Create invoice</button>'}</div>`;
+}
+
+/* ---------- Editor ---------- */
+const cur = () => S.current;
+function fillSelect(sel, opts, val) { sel.innerHTML = opts.map(([v, l]) => `<option value="${esc(v)}">${esc(l)}</option>`).join(''); if (val !== undefined) sel.value = val; }
+function fillEditor() {
+  const d = cur();
+  $$('#typeSeg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.settype === d.type)));
+  fillSelect($('#f-status'), STATUSES[d.type]);
+  fillSelect($('#f-currency'), Object.entries(CURRENCIES).map(([k, v]) => [k, v.label]));
+  fillSelect($('#f-terms'), TERMS.map(t => [t.v, t.l]));
+  $$('#view-editor [data-f]').forEach(el => {
+    const v = getPath(d, el.dataset.f);
+    if (el.type === 'checkbox') el.checked = !!v; else el.value = v ?? '';
+  });
+  if (!STATUSES[d.type].some(s => s[0] === d.status)) { d.status = STATUSES[d.type][0][0]; $('#f-status').value = d.status; }
+  $('#swatches').innerHTML = SWATCHES.map(c => `<button class="h-9 w-9 rounded-full border-2 lg:h-7 lg:w-7 ${c.toLowerCase() === (d.accent || '').toLowerCase() ? 'border-ink dark:border-white' : 'border-transparent'}" style="background:${c}" data-swatch="${c}" aria-label="Accent ${c}"></button>`).join('');
+  $('#optToggles').innerHTML = [['showBank', 'Bank details'], ['showQR', 'QR code'], ['showWords', 'Amount in words'], ['showSignature', 'Signature'], ['showStamp', 'Status stamp'], ['showNumbers', 'Line numbers']]
+    .map(([k, l]) => `<label class="flex items-center justify-between gap-3 rounded-lg border border-line px-3 py-2.5 text-sm font-semibold dark:border-slate-800">${l}<input type="checkbox" class="h-4 w-4 accent-brand" data-f="opts.${k}" ${d.opts[k] ? 'checked' : ''}></label>`).join('');
+  $('#serviceNames').innerHTML = S.services.map(s => `<option value="${esc(s.name)}">${esc(s.category)} · ${money(s.rate, S.settings.currency)}/${esc(s.unit)}</option>`).join('');
+  syncTypeUI(); renderItems(); renderPayments(); updateTotals(); renderPreview(); setDirty(UI.dirty);
+}
+function syncTypeUI() {
+  const d = cur();
+  $('#wrap-terms').hidden = d.type !== 'invoice';
+  $('#wrap-due').hidden = d.type === 'receipt';
+  $('#lbl-due').textContent = d.type === 'quotation' ? 'Valid until' : 'Due date';
+  $('#lbl-issue').textContent = d.type === 'receipt' ? 'Payment date' : 'Issue date';
+  $('#paymentsPanel').hidden = d.type === 'quotation';
+  $('#payTitle').textContent = d.type === 'receipt' ? 'Payment received' : 'Payments received';
+  $('#payHint').textContent = d.type === 'receipt' ? 'Record how and when the money arrived. The receipt shows the amount received.' : 'Advances and part payments reduce the balance due.';
+  $('#taxFields').style.opacity = d.taxEnabled ? 1 : .5;
+  $$('#taxFields input').forEach(i => i.disabled = !d.taxEnabled);
+  $('#edTitle').textContent = (d.saved ? '' : 'New ') + TYPE_LABEL[d.type].toLowerCase().replace(/^./, c => d.saved ? c.toUpperCase() : c) + (d.saved ? ' ' + d.number : '');
+  $('#edCrumb').textContent = d.saved ? d.number : 'New ' + TYPE_LABEL[d.type].toLowerCase();
+  $('#barLabel').textContent = d.type === 'quotation' ? 'Quoted total' : d.type === 'receipt' ? 'Amount received' : 'Balance due';
+}
+function renderItems() {
+  const d = cur(); const t = calc(d);
+  $('#itemCount').textContent = d.items.length ? `(${d.items.length})` : '';
+  $('#itemsList').innerHTML = d.items.map((it, k) => `
+    <div class="rounded-xl border border-line p-2.5 sm:p-3 dark:border-slate-800" data-item="${it.id}">
+      <div class="flex items-start gap-1.5 sm:gap-2">
+        <span class="mt-3 w-4 shrink-0 sm:w-5 text-center text-xs font-bold text-slate-400 num">${k + 1}</span>
+        <div class="min-w-0 flex-1 space-y-2">
+          <input class="field font-semibold" placeholder="Service or item" list="serviceNames" data-ik="name" value="${esc(it.name)}" aria-label="Item ${k + 1} name">
+          <textarea class="field text-base lg:text-sm" rows="1" placeholder="Description (optional)" data-ik="desc" aria-label="Item ${k + 1} description">${esc(it.desc)}</textarea>
+          <div class="grid grid-cols-2 gap-2 sm:grid-cols-[1fr_1.1fr_1.5fr_.9fr]">
+            <div><label class="lbl text-xs">Qty</label><input type="number" step="any" min="0" class="field num" data-ik="qty" value="${esc(it.qty)}" inputmode="decimal"></div>
+            <div><label class="lbl text-xs">Unit</label><select class="field" data-ik="unit">${UNITS.map(u => `<option ${u === it.unit ? 'selected' : ''}>${u}</option>`).join('')}</select></div>
+            <div><label class="lbl text-xs">Rate</label><input type="number" step="any" min="0" class="field num" data-ik="rate" value="${esc(it.rate)}" inputmode="decimal"></div>
+            <div><label class="lbl text-xs">Disc. %</label><input type="number" step="any" min="0" max="100" class="field num" data-ik="disc" value="${esc(it.disc || '')}" placeholder="0" inputmode="decimal"></div>
+          </div>
+          <div class="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 pt-0.5">
+            <label class="flex min-h-10 items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400"><input type="checkbox" class="h-4 w-4 accent-brand" data-ik="taxable" ${it.taxable !== false ? 'checked' : ''}>Taxable</label>
+            <div cl

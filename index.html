@@ -97,7 +97,7 @@
   .inv .num { font-variant-numeric: tabular-nums; }
   .inv .muted { color: var(--muted); }
   .inv .rail { height: 8px; background: var(--accent); }
-  .inv .head { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; padding-top: 40px; padding-bottom: 28px; }
+  .inv .head { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; padding-top: 34px; padding-bottom: 22px; }
   .inv .brand img { max-height: var(--logo-h, 52px); max-width: 230px; object-fit: contain; display: block; }
   .inv .wordmark { font-size: 24px; font-weight: 800; letter-spacing: -.02em; color: var(--accent); }
   .inv .brand .tag { margin-top: 8px; color: var(--muted); font-size: 11.5px; max-width: 260px; }
@@ -108,7 +108,7 @@
   .inv .status.paid { background: #E3F5EE; color: #0B6B4B; }
   .inv .status.overdue { background: #FDEBDD; color: #9A3D07; }
   .inv .status.partial { background: #E0F2F7; color: #0E5E75; }
-  .inv .meta { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 28px; padding-top: 22px; padding-bottom: 26px; border-top: 1px solid var(--rule); }
+  .inv .meta { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 28px; padding-top: 18px; padding-bottom: 20px; border-top: 1px solid var(--rule); }
   .inv .meta h4 { margin: 0 0 6px; font-size: 11px; font-weight: 700; color: var(--muted); }
   .inv .meta .strong { font-weight: 700; font-size: 13.5px; }
   .inv .meta p { margin: 0; white-space: pre-line; }
@@ -122,7 +122,7 @@
   .inv table.items thead th:first-child { border-radius: 6px 0 0 6px; }
   .inv table.items thead th:last-child { border-radius: 0 6px 6px 0; }
   .inv table.items th.r, .inv table.items td.r { text-align: right; }
-  .inv table.items td { padding: 11px 10px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  .inv table.items td { padding: 9px 10px; border-bottom: 1px solid var(--rule); vertical-align: top; }
   .inv table.items tr { page-break-inside: avoid; break-inside: avoid; }
   .inv table.items .iname { font-weight: 700; }
   .inv table.items .idesc { color: var(--muted); white-space: pre-line; margin-top: 2px; font-size: 11.5px; }
@@ -130,7 +130,7 @@
   .inv table.items td.r, .inv table.items th.r { white-space: nowrap; }
   .inv table.items td:nth-child(2) { word-break: break-word; }
   .inv .empty-items { padding: 28px 10px; text-align: center; color: var(--muted); border-bottom: 1px solid var(--rule); }
-  .inv .sum { display: grid; grid-template-columns: 1fr 300px; gap: 32px; padding-top: 20px; }
+  .inv .sum { display: grid; grid-template-columns: 1fr 300px; gap: 32px; padding-top: 16px; }
   .inv .totals { width: 100%; border-collapse: collapse; }
   .inv .totals td { padding: 5px 0; }
   .inv .totals td.r { text-align: right; font-weight: 600; }
@@ -143,30 +143,30 @@
   .inv .paylist { margin-top: 14px; font-size: 11.5px; }
   .inv .paylist h4 { margin: 0 0 4px; font-size: 11px; color: var(--muted); font-weight: 700; }
   .inv .paylist div { display: flex; justify-content: space-between; gap: 10px; padding: 3px 0; border-bottom: 1px dashed var(--rule); }
-  .inv .lower { display: grid; grid-template-columns: 1fr auto; gap: 28px; padding-top: 28px; align-items: start; }
+  .inv .lower { display: grid; grid-template-columns: 1fr auto; gap: 28px; padding-top: 20px; align-items: start; }
   .inv .box h4 { margin: 0 0 6px; font-size: 11px; font-weight: 700; color: var(--muted); }
   .inv .box p { margin: 0; white-space: pre-line; }
   .inv .bank { display: grid; grid-template-columns: auto 1fr; gap: 2px 14px; }
   .inv .bank dt { color: var(--muted); }
   .inv .bank dd { margin: 0; font-weight: 600; }
   .inv .qr { text-align: center; }
-  .inv .qr img { width: 96px; height: 96px; display: block; margin: 0 auto; }
+  .inv .qr img { width: 86px; height: 86px; display: block; margin: 0 auto; }
   .inv .qr small { display: block; margin-top: 4px; color: var(--muted); font-size: 10px; }
-  .inv .notes { padding-top: 22px; display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
-  .inv .sign { padding-top: 34px; display: flex; justify-content: flex-end; }
+  .inv .notes { padding-top: 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+  .inv .sign { padding-top: 16px; display: flex; justify-content: flex-end; }
   .inv .sign > div { width: 220px; text-align: center; }
-  .inv .sign img { max-height: 60px; max-width: 200px; display: block; margin: 0 auto 4px; }
+  .inv .sign img { max-height: 50px; max-width: 200px; display: block; margin: 0 auto 4px; }
   .inv .sign .line { border-top: 1px solid var(--ink); padding-top: 6px; font-weight: 700; }
   .inv .sign small { color: var(--muted); }
-  .inv .grow { flex: 1; min-height: 24px; }
-  .inv .foot { padding-top: 16px; padding-bottom: 26px; border-top: 1px solid var(--rule); display: flex; justify-content: space-between; gap: 16px; font-size: 11px; color: var(--muted); }
+  .inv .grow { flex: 1; min-height: 14px; }
+  .inv .foot { padding-top: 13px; padding-bottom: 20px; border-top: 1px solid var(--rule); display: flex; justify-content: space-between; gap: 16px; font-size: 11px; color: var(--muted); }
   .inv .foot b { color: var(--ink); }
   .inv .stamp { position: absolute; top: 300px; right: 70px; transform: rotate(-14deg); border: 4px solid currentColor; border-radius: 10px; padding: 6px 18px; font-size: 34px; font-weight: 800; letter-spacing: .06em; opacity: .16; pointer-events: none; }
   .inv .stamp.paid { color: #0B6B4B; } .inv .stamp.overdue { color: #B45309; } .inv .stamp.draft { color: #5B6785; } .inv .stamp.cancelled { color: #B91C1C; } .inv .stamp.accepted { color: #0B6B4B; }
 
   /* Template: classic */
   .inv.tpl-classic .rail { display: none; }
-  .inv.tpl-classic .head { flex-direction: column; align-items: center; text-align: center; padding-top: 44px; gap: 14px; }
+  .inv.tpl-classic .head { flex-direction: column; align-items: center; text-align: center; padding-top: 36px; gap: 12px; }
   .inv.tpl-classic .brand img { margin: 0 auto; }
   .inv.tpl-classic .brand .tag { margin-left: auto; margin-right: auto; }
   .inv.tpl-classic .title { text-align: center; }
@@ -178,7 +178,7 @@
 
   /* Template: minimal */
   .inv.tpl-minimal .rail { display: none; }
-  .inv.tpl-minimal .head { padding-top: 56px; }
+  .inv.tpl-minimal .head { padding-top: 44px; }
   .inv.tpl-minimal .title h1 { color: var(--ink); font-weight: 700; font-size: 34px; }
   .inv.tpl-minimal .title .no { color: var(--accent); }
   .inv.tpl-minimal .meta { border-top: 0; }
@@ -189,13 +189,13 @@
 
   /* Template: bold — accent side panel header */
   .inv.tpl-bold .rail { display: none; }
-  .inv.tpl-bold .head { background: var(--accent); color: #fff; margin: 0; padding: 40px 56px 32px; }
+  .inv.tpl-bold .head { background: var(--accent); color: #fff; margin: 0; padding: 34px 56px 26px; }
   .inv.tpl-bold .title h1 { color: #fff; }
   .inv.tpl-bold .brand .tag { color: rgba(255,255,255,.8); }
   .inv.tpl-bold .wordmark { color: #fff; }
   .inv.tpl-bold .status { background: rgba(255,255,255,.18); color: #fff; }
   .inv.tpl-bold .brand img { background: #fff; padding: 8px 10px; border-radius: 10px; }
-  .inv.tpl-bold .meta { border-top: 0; padding-top: 28px; }
+  .inv.tpl-bold .meta { border-top: 0; padding-top: 22px; }
 
   .inv.export { min-height: 1120px; }
   .inv.paged { height: 1120px; min-height: 0; }
@@ -1110,7 +1110,7 @@ function renderInvoice(doc, { exporting = false, logoSrc, page } = {}) {
   const statusChip = doc.type === 'receipt' ? '' : `<div class="status ${status}">${STATUS_LABEL[status] || ''}</div>`;
 
   const hasRows = rows || pg.first;
-  return `<div class="inv tpl-${esc(doc.template || 'modern')}${exporting ? ' export' : ''}${page ? ' paged' : ''}" style="--accent:${esc(doc.accent || '#1E40AF')};--logo-h:${num(st.logoHeight) || 52}px">
+  return `<div class="inv tpl-${esc(doc.template || 'modern')}${exporting ? ' export' : ''}${page ? ' paged' : ''}" style="--accent:${esc(doc.accent || '#1E40AF')};--logo-h:${num(st.logoHeight) || 52}px${pg.fit ? `;width:${794 / pg.fit}px;height:${PAGE_H / pg.fit}px` : ''}">
     <div class="rail"></div>
     ${pg.first ? stamp : ''}
     ${pg.first ? '' : `<div class="cont pad"><b>${esc(co.name)}</b><span>${typeName} <b class="num">${esc(doc.number)}</b> · continued</span></div>`}
@@ -1152,7 +1152,7 @@ function renderInvoice(doc, { exporting = false, logoSrc, page } = {}) {
         ${doc.notes ? `<div class="box"><h4>Note</h4><p>${esc(doc.notes)}</p></div>` : '<div></div>'}
         ${doc.termsText ? `<div class="box"><h4>Terms</h4><p class="muted" style="font-size:11px">${esc(doc.termsText)}</p></div>` : ''}
       </div>` : ''}
-      ${showSig ? `<div class="sign"><div>${sig.image ? `<img src="${esc(sig.image)}" alt="Signature">` : '<div style="height:44px"></div>'}<div class="line">${esc(sig.name || co.name)}</div><small>${esc(sig.title || '')}</small></div></div>` : ''}` : ''}
+      ${showSig ? `<div class="sign"><div>${sig.image ? `<img src="${esc(sig.image)}" alt="Signature">` : '<div style="height:40px"></div>'}<div class="line">${esc(sig.name || co.name)}</div><small>${esc(sig.title || '')}</small></div></div>` : ''}` : ''}
     </div>
     <div class="grow"></div>
     <div class="foot pad"><span><b>${esc(co.name)}</b>${co.website ? ' · ' + esc(co.website) : ''}</span><span>${[co.phone, co.email].filter(Boolean).map(esc).join(' · ')}${pg.count > 1 ? ` · Page ${pg.no} of ${pg.count}` : ''}</span></div>
@@ -1757,6 +1757,7 @@ async function logoForExport() {
   return UI.logoData;
 }
 const PAGE_H = 1120; // px height of one A4 page at the 794px document width (kept under 1122.5 so it never spills)
+const FIT_MIN = 0.85; // smallest scale used to keep a nearly-fitting document on one page
 async function waitImages(root) { await Promise.all([...root.querySelectorAll('img')].map(i => i.complete ? (i.decode ? i.decode().catch(() => { }) : 0) : new Promise(r => { i.onload = i.onerror = r; setTimeout(r, 4000); }))); }
 // Split the line items into A4 pages: rows fill each page, totals and notes go on the last one
 async function paginate(d, host, logo) {
@@ -1765,6 +1766,12 @@ async function paginate(d, host, logo) {
     host.innerHTML = renderInvoice(d, { exporting: true, logoSrc: logo, page: Object.assign({ no: 1, count: 2 }, pg) });
     const el = host.firstElementChild; el.classList.add('measure'); await waitImages(el); return el.offsetHeight;
   };
+  // A document only a little too tall for one page is scaled down slightly instead of being split
+  const full = await height({ from: 0, to: n, first: true, last: true });
+  if (full > PAGE_H && full * FIT_MIN <= PAGE_H) {
+    const fit = Math.floor(PAGE_H / full * 1000) / 1000;
+    if (await height({ from: 0, to: n, first: true, last: true, fit }) * fit <= PAGE_H) return [{ from: 0, to: n, first: true, last: true, fit, no: 1, count: 1 }];
+  }
   const pages = []; let from = 0;
   while (true) {
     const first = from === 0;
@@ -1800,7 +1807,8 @@ async function buildPdf(d, mode = 'save') {
     const pages = await paginate(d, host, logo || '');
     let pdf = null;
     for (const pg of pages) {
-      host.innerHTML = renderInvoice(d, { exporting: true, logoSrc: logo || '', page: pg });
+      const html = renderInvoice(d, { exporting: true, logoSrc: logo || '', page: pg });
+      host.innerHTML = pg.fit ? `<div style="width:794px;height:${PAGE_H}px;overflow:hidden;background:#fff"><div style="transform:scale(${pg.fit});transform-origin:0 0">${html}</div></div>` : html;
       const el = host.firstElementChild; if (pg.tall) el.classList.add('measure');
       await waitImages(el);
       const canvas = await html2pdf().set(opt).from(el).toCanvas().get('canvas');

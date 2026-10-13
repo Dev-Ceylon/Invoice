@@ -198,6 +198,11 @@
   .inv.tpl-bold .meta { border-top: 0; padding-top: 28px; }
 
   .inv.export { min-height: 1120px; }
+  .inv.paged { height: 1120px; min-height: 0; }
+  .inv.measure { height: auto !important; min-height: 0 !important; }
+  .inv .cont { display: flex; justify-content: space-between; gap: 16px; padding-top: 22px; padding-bottom: 16px; margin-bottom: 14px; border-bottom: 1px solid var(--rule); font-size: 12px; color: var(--muted); }
+  .inv .cont b { color: var(--ink); }
+  .inv .more { padding-top: 10px; text-align: right; font-size: 11px; }
 
   /* Print */
   #printArea { display: none; }
@@ -1049,7 +1054,8 @@ function qrTextFor(doc, t) {
   if (st.qr.mode === 'url' && st.qr.url) return st.qr.url;
   return `${st.company.name}\n${TYPE_LABEL[doc.type]} ${doc.number}\n${doc.type === 'receipt' ? 'Received' : 'Amount due'}: ${money(doc.type === 'receipt' ? t.paid : t.balance, doc.currency)}${doc.type !== 'receipt' ? '\nDue: ' + fmtDate(doc.dueDate) : ''}${st.company.website ? '\n' + st.company.website : ''}`;
 }
-function renderInvoice(doc, { exporting = false, logoSrc } = {}) {
+const invoiceRows = doc => doc.items.filter(i => i.name || i.desc || num(i.rate));
+function renderInvoice(doc, { exporting = false, logoSrc, page } = {}) {
   const st = S.settings; const co = st.company; const c = doc.client; const t = calc(doc); const status = effStatus(doc, t); const cur = doc.currency;
   const showDisc = doc.items.some(i => num(i.disc) > 0);
   const hasTax = doc.taxEnabled && t.tax > 0; const typeName = TYPE_LABEL[doc.type];
@@ -1069,9 +1075,11 @@ function renderInvoice(doc, { exporting = false, logoSrc } = {}) {
   const coLines = [co.address, co.phone, co.email, co.website].filter(Boolean).map(esc).join('\n');
   const coIds = [co.regNo ? 'Reg. No: ' + esc(co.regNo) : '', co.taxId ? 'VAT/TIN: ' + esc(co.taxId) : ''].filter(Boolean).join('\n');
   const clLines = [c.company && c.name ? c.name : '', c.address, c.phone, c.email, c.taxId ? 'VAT/TIN: ' + c.taxId : ''].filter(Boolean).map(esc).join('\n');
-  const rows = doc.items.filter(i => i.name || i.desc || num(i.rate)).map((i, k) => `
+  // page: { from, to, first, last, no, count } renders one A4 page of a multi-page export
+  const pg = page || { from: 0, to: Infinity, first: true, last: true, no: 1, count: 1 };
+  const rows = invoiceRows(doc).slice(pg.from, pg.to).map((i, k) => `
     <tr>
-      ${doc.opts.showNumbers ? `<td class="idx num">${k + 1}</td>` : ''}
+      ${doc.opts.showNumbers ? `<td class="idx num">${pg.from + k + 1}</td>` : ''}
       <td><div class="iname">${esc(i.name) || '&nbsp;'}</div>${i.desc ? `<div class="idesc">${esc(i.desc)}</div>` : ''}</td>
       <td class="r num">${esc(+num(i.qty).toFixed(2))} <span class="muted">${esc(i.unit && i.unit !== 'item' ? i.unit + (num(i.qty) === 1 ? '' : 's') : '')}</span></td>
       <td class="r num">${money(num(i.rate), cur)}</td>
@@ -1101,10 +1109,12 @@ function renderInvoice(doc, { exporting = false, logoSrc } = {}) {
   const payList = doc.type !== 'quotation' && doc.payments.length ? `<div class="paylist"><h4>Payment history</h4>${doc.payments.map(p => `<div><span>${fmtDate(p.date)} · ${esc(p.method)}${p.ref ? ' · ' + esc(p.ref) : ''}</span><span class="num">${money(num(p.amount), cur)}</span></div>`).join('')}</div>` : '';
   const statusChip = doc.type === 'receipt' ? '' : `<div class="status ${status}">${STATUS_LABEL[status] || ''}</div>`;
 
-  return `<div class="inv tpl-${esc(doc.template || 'modern')}${exporting ? ' export' : ''}" style="--accent:${esc(doc.accent || '#1E40AF')};--logo-h:${num(st.logoHeight) || 52}px">
+  const hasRows = rows || pg.first;
+  return `<div class="inv tpl-${esc(doc.template || 'modern')}${exporting ? ' export' : ''}${page ? ' paged' : ''}" style="--accent:${esc(doc.accent || '#1E40AF')};--logo-h:${num(st.logoHeight) || 52}px">
     <div class="rail"></div>
-    ${stamp}
-    <div class="head pad">
+    ${pg.first ? stamp : ''}
+    ${pg.first ? '' : `<div class="cont pad"><b>${esc(co.name)}</b><span>${typeName} <b class="num">${esc(doc.number)}</b> · continued</span></div>`}
+    ${pg.first ? `<div class="head pad">
       <div class="brand">${brand}${co.tagline ? `<div class="tag">${esc(co.tagline)}</div>` : ''}</div>
       <div class="title"><h1>${typeName}</h1><div class="no num">${esc(doc.number)}</div>${statusChip}</div>
     </div>
@@ -1114,12 +1124,13 @@ function renderInvoice(doc, { exporting = false, logoSrc } = {}) {
         <div><h4>${doc.type === 'receipt' ? 'Received from' : doc.type === 'quotation' ? 'Prepared for' : 'Bill to'}</h4><p class="strong">${esc(c.company || c.name) || '<span class="muted">Client name</span>'}</p><p class="muted">${clLines}</p></div>
         <div><h4>Details</h4><dl class="kv">${kv.map(([k, v]) => `<dt>${k}</dt><dd class="num">${v}</dd>`).join('')}</dl></div>
       </div>
-      ${doc.project ? `<div class="project"><span class="muted">Project</span> <b>${esc(doc.project)}</b></div>` : ''}
-      <table class="items">
+      ${doc.project ? `<div class="project"><span class="muted">Project</span> <b>${esc(doc.project)}</b></div>` : ''}` : '<div class="pad">'}
+      ${hasRows ? `<table class="items">
         <thead><tr>${doc.opts.showNumbers ? '<th>#</th>' : ''}<th>Description</th><th class="r">Qty</th><th class="r">Rate</th>${showDisc ? '<th class="r">Disc.</th>' : ''}<th class="r">Amount</th></tr></thead>
         <tbody>${rows || `<tr><td colspan="${cols}" class="empty-items">Add line items to see them here.</td></tr>`}</tbody>
-      </table>
-      <div class="sum">
+      </table>` : ''}
+      ${pg.last ? '' : '<div class="more muted">Continued on the next page</div>'}
+      ${pg.last ? `<div class="sum">
         <div>
           ${doc.opts.showWords && wordsAmt > 0 ? `<div class="words"><b>Amount in words</b>${esc(amountInWords(wordsAmt, cur))}</div>` : ''}
           ${payList}
@@ -1141,10 +1152,10 @@ function renderInvoice(doc, { exporting = false, logoSrc } = {}) {
         ${doc.notes ? `<div class="box"><h4>Note</h4><p>${esc(doc.notes)}</p></div>` : '<div></div>'}
         ${doc.termsText ? `<div class="box"><h4>Terms</h4><p class="muted" style="font-size:11px">${esc(doc.termsText)}</p></div>` : ''}
       </div>` : ''}
-      ${showSig ? `<div class="sign"><div>${sig.image ? `<img src="${esc(sig.image)}" alt="Signature">` : '<div style="height:44px"></div>'}<div class="line">${esc(sig.name || co.name)}</div><small>${esc(sig.title || '')}</small></div></div>` : ''}
+      ${showSig ? `<div class="sign"><div>${sig.image ? `<img src="${esc(sig.image)}" alt="Signature">` : '<div style="height:44px"></div>'}<div class="line">${esc(sig.name || co.name)}</div><small>${esc(sig.title || '')}</small></div></div>` : ''}` : ''}
     </div>
     <div class="grow"></div>
-    <div class="foot pad"><span><b>${esc(co.name)}</b>${co.website ? ' · ' + esc(co.website) : ''}</span><span>${[co.phone, co.email].filter(Boolean).map(esc).join(' · ')}</span></div>
+    <div class="foot pad"><span><b>${esc(co.name)}</b>${co.website ? ' · ' + esc(co.website) : ''}</span><span>${[co.phone, co.email].filter(Boolean).map(esc).join(' · ')}${pg.count > 1 ? ` · Page ${pg.no} of ${pg.count}` : ''}</span></div>
   </div>`;
 }
 
@@ -1745,21 +1756,80 @@ async function logoForExport() {
   catch { UI.logoData = ''; }
   return UI.logoData;
 }
+const PAGE_H = 1120; // px height of one A4 page at the 794px document width (kept under 1122.5 so it never spills)
+async function waitImages(root) { await Promise.all([...root.querySelectorAll('img')].map(i => i.complete ? (i.decode ? i.decode().catch(() => { }) : 0) : new Promise(r => { i.onload = i.onerror = r; setTimeout(r, 4000); }))); }
+// Split the line items into A4 pages: rows fill each page, totals and notes go on the last one
+async function paginate(d, host, logo) {
+  const n = invoiceRows(d).length;
+  const height = async pg => {
+    host.innerHTML = renderInvoice(d, { exporting: true, logoSrc: logo, page: Object.assign({ no: 1, count: 2 }, pg) });
+    const el = host.firstElementChild; el.classList.add('measure'); await waitImages(el); return el.offsetHeight;
+  };
+  const pages = []; let from = 0;
+  while (true) {
+    const first = from === 0;
+    if (await height({ from, to: n, first, last: true }) <= PAGE_H) { pages.push({ from, to: n, first, last: true }); break; }
+    if (from >= n) { pages.push({ from, to: n, first, last: true, tall: true }); break; } // the closing section alone is taller than a page
+    let to = from + 1;
+    while (to < n && await height({ from, to: to + 1, first, last: false }) <= PAGE_H) to++;
+    if (to === n && to - from > 1) to--; // carry at least one line item over with the totals
+    pages.push({ from, to, first, last: false }); from = to;
+    if (pages.length > 60) break;
+  }
+  return pages.map((pg, k) => Object.assign(pg, { no: k + 1, count: pages.length }));
+}
 async function buildPdf(d, mode = 'save') {
   try { await loadScript(LIB.pdf); } catch { toast('The PDF tool could not load. Check your connection, or use Print and choose Save as PDF.', 'error'); return null; }
   if (d.opts.showQR && !window.QRCode) { try { await loadScript(LIB.qr); } catch { } }
   const logo = await logoForExport();
-  const host = document.createElement('div'); host.style.cssText = 'position:fixed;left:0;top:0;width:794px;background:#fff;z-index:-1;pointer-events:none;opacity:1;';
-  host.innerHTML = renderInvoice(d, { exporting: true, logoSrc: logo || '' }); document.body.appendChild(host);
-  await Promise.all([...host.querySelectorAll('img')].map(i => i.complete ? 0 : new Promise(r => { i.onload = i.onerror = r; })));
-  if (document.fonts?.ready) await document.fonts.ready;
-  const opt = { margin: 0, filename: fileName(d), image: { type: 'jpeg', quality: 0.97 }, html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', logging: false, scrollX: 0, scrollY: 0 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait', compress: true }, pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.balance', '.sign', '.box', '.words'] } };
+  if (S.settings.logo && !logo && !UI.logoWarned) { UI.logoWarned = true; toast('The website logo could not be added to the PDF, so the company name is used. Upload the logo file in Settings to include it.', 'info'); }
+  // Off-screen host for measuring; html2pdf renders its own copy of each page
+  const host = document.createElement('div'); host.style.cssText = 'position:absolute;left:-10000px;top:0;width:794px;background:#fff;';
+  document.body.appendChild(host);
+  const opt = {
+    margin: 0, filename: fileName(d), image: { type: 'jpeg', quality: 0.95 },
+    html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', logging: false, scrollX: 0, scrollY: 0 },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait', compress: true }
+  };
+  // html2canvas cannot parse Tailwind's oklch() colours, which dark mode puts on <body> (inherited by
+  // html2pdf's render container), so switch to the light palette while the PDF is drawn
+  const wasDark = document.documentElement.classList.contains('dark');
+  document.documentElement.classList.remove('dark');
   try {
-    const w = html2pdf().set(opt).from(host.firstElementChild);
-    if (mode === 'blob') return await w.outputPdf('blob');
-    await w.save(); return true;
+    if (document.fonts?.ready) await document.fonts.ready;
+    const pages = await paginate(d, host, logo || '');
+    let pdf = null;
+    for (const pg of pages) {
+      host.innerHTML = renderInvoice(d, { exporting: true, logoSrc: logo || '', page: pg });
+      const el = host.firstElementChild; if (pg.tall) el.classList.add('measure');
+      await waitImages(el);
+      const canvas = await html2pdf().set(opt).from(el).toCanvas().get('canvas');
+      if (!pdf) pdf = await emptyPdf(opt);
+      addCanvasPages(pdf, canvas);
+    }
+    if (mode === 'blob') return pdf.output('blob');
+    pdf.save(fileName(d)); return true;
   } catch (e) { console.error(e); toast('The PDF could not be created. Use Print and choose Save as PDF instead.', 'error'); return null; }
-  finally { host.remove(); }
+  finally { host.remove(); if (wasDark) document.documentElement.classList.add('dark'); }
+}
+// html2pdf's bundle does not expose jsPDF, so take the document from a tiny throwaway render and empty it
+async function emptyPdf(opt) {
+  const dot = document.createElement('div'); dot.style.cssText = 'width:20px;height:20px;background:#fff;color:#000';
+  const pdf = await html2pdf().set(Object.assign({}, opt, { html2canvas: Object.assign({}, opt.html2canvas, { scale: 0.2 }) })).from(dot).toPdf().get('pdf');
+  while (pdf.getNumberOfPages() > 0) pdf.deletePage(1);
+  return pdf;
+}
+// Add a rendered page to the PDF, slicing it onto extra A4 pages only if it is taller than one page
+function addCanvasPages(pdf, canvas) {
+  const pageW = 210, pageH = 297; const slicePx = Math.floor(canvas.width * pageH / pageW);
+  for (let y = 0; y < canvas.height; y += slicePx) {
+    const h = Math.min(slicePx, canvas.height - y);
+    if (y > 0 && h < 8) break; // ignore a rounding sliver
+    const part = document.createElement('canvas'); part.width = canvas.width; part.height = h;
+    const ctx = part.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, part.width, h); ctx.drawImage(canvas, 0, y, canvas.width, h, 0, 0, canvas.width, h);
+    pdf.addPage('a4', 'portrait');
+    pdf.addImage(part.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, pageW, h * pageW / canvas.width, undefined, 'FAST');
+  }
 }
 async function downloadPdf(d = cur()) {
   const b = $('[data-action=pdf]'); b && (b.disabled = true);
@@ -2069,7 +2139,13 @@ document.addEventListener('click', async e => {
     case 'load-sample': return loadSample();
     case 'export-json': return exportJSON();
     case 'export-csv': return exportCSV();
-    case 'logo-default': S.settings.logo = WEBSITE_LOGO; UI.logoData = null; persist(); renderLogoBits(); return toast('Using the logo from devceylon.com');
+    case 'logo-default': {
+      S.settings.logo = WEBSITE_LOGO; UI.logoData = null; UI.logoWarned = false; persist(); renderLogoBits();
+      // Store an embedded copy when the site allows it, so PDFs never depend on fetching the logo later
+      const data = await logoForExport();
+      if (data && S.settings.logo === WEBSITE_LOGO) { S.settings.logo = data; persist(); renderLogoBits(); return toast('Website logo saved for documents and PDFs', 'success'); }
+      return toast('Using the logo from devceylon.com. If it is missing from PDFs, upload the logo file instead.');
+    }
     case 'draw-signature': return signatureModal();
     case 'clear-signature': S.settings.signatory.image = ''; persist(); renderLogoBits(); return toast('Signature removed');
     case 'reset-all':
